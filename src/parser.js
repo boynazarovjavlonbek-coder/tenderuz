@@ -50,6 +50,7 @@ const REGION_MAP = {
   'samarqand viloyati': 'Samarqand viloyati',
   'ферганская область': "Farg'ona viloyati",
   "farg'ona viloyati": "Farg'ona viloyati",
+  'farg`ona viloyati': "Farg'ona viloyati",
   'fergana viloyati': "Farg'ona viloyati",
   'андижанская область': 'Andijon viloyati',
   'andijon viloyati': 'Andijon viloyati',
@@ -57,6 +58,7 @@ const REGION_MAP = {
   'namangan viloyati': 'Namangan viloyati',
   'сурхандарьинская область': 'Surxondaryo viloyati',
   'surxondaryo viloyati': 'Surxondaryo viloyati',
+  'surxandaryo viloyati': 'Surxondaryo viloyati',
   'сырдарьинская область': 'Sirdaryo viloyati',
   'sirdaryo viloyati': 'Sirdaryo viloyati',
   'хорезмская область': 'Xorazm viloyati',
@@ -70,12 +72,15 @@ const REGION_MAP = {
   'республика каракалпакстан': "Qoraqalpog'iston",
   'karakalpakstan': "Qoraqalpog'iston",
   "qoraqalpog'iston respublikasi": "Qoraqalpog'iston",
+  "qoraqalpog`iston respublikasi": "Qoraqalpog'iston",
   "qoraqalpog'iston": "Qoraqalpog'iston",
+  "qoraqalpog`iston": "Qoraqalpog'iston",
 };
 
 function normalizeRegion(name) {
   if (!name) return '';
-  return REGION_MAP[name.toLowerCase()] || name;
+  const key = name.trim().toLowerCase();
+  return REGION_MAP[key] || name.trim();
 }
 
 function normalizeCurrency(name) {
@@ -86,55 +91,83 @@ function normalizeCurrency(name) {
   return name;
 }
 
-// ── XARID — Playwright bilan header ushlash ──
+// ── XARID — Cookie + browser headers (Playwright-siz) ──
 async function fetchFromXarid() {
-  const { chromium } = require('playwright');
-  const browser = await chromium.launch({ headless: true });
-  const context = await browser.newContext({ ignoreHTTPSErrors: true });
-  const page = await context.newPage();
-
-  let capturedHeaders = null;
-  let firstBatch = [];
-
-  await page.route('**/GetMinimizedLotsList', async (route, req) => {
-    capturedHeaders = { ...req.headers() };
-    const res = await route.fetch();
-    try { firstBatch = await res.json(); } catch(e) {}
-    await route.fulfill({ response: res });
-  });
-
-  await page.goto('https://xarid.uzex.uz/auction/list', { timeout: 40000 });
-  await page.waitForTimeout(8000);
-
-  let totalCount = firstBatch.length;
-  try {
-    const txt = await page.evaluate(() => document.body.innerText);
-    const m = txt.match(/Katalogda\s+(\d+)/);
-    if (m) totalCount = parseInt(m[1]);
-  } catch(e) {}
-
-  await browser.close();
-
-  if (firstBatch.length === 0) return [];
-
   const apiUrl = 'https://xarid-api-auction.uzex.uz/Common/GetMinimizedLotsList';
   const pageSize = 20;
-  const totalPages = Math.ceil(totalCount / pageSize);
-  console.log(`xarid: jami ${totalCount} lot, ${totalPages} sahifa`);
+
+  const ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
+
+  // 1. Asosiy saytdan sessiya cookie va XSRF token olish
+  let apiHeaders = {
+    'User-Agent': ua,
+    'Accept': 'application/json, text/plain, */*',
+    'Accept-Language': 'uz-UZ,uz;q=0.9,ru;q=0.8',
+    'Content-Type': 'application/json',
+    'Referer': 'https://xarid.uzex.uz/auction/list',
+    'Origin': 'https://xarid.uzex.uz',
+  };
+
+  try {
+    const sessionRes = await axios.get('https://xarid.uzex.uz/auction/list', {
+      httpsAgent, timeout: 25000,
+      headers: { 'User-Agent': ua, 'Accept': 'text/html,*/*', 'Accept-Language': 'uz-UZ,uz;q=0.9' },
+    });
+    const rawCookies = sessionRes.headers['set-cookie'] || [];
+    const cookieParts = [];
+    let xsrfToken = '';
+    rawCookies.forEach(c => {
+      const pair = c.split(';')[0];
+      cookieParts.push(pair);
+      if (/xsrf-token/i.test(pair)) {
+        xsrfToken = decodeURIComponent(pair.split('=').slice(1).join('='));
+      }
+    });
+    if (cookieParts.length) apiHeaders['Cookie'] = cookieParts.join('; ');
+    if (xsrfToken)          apiHeaders['X-XSRF-TOKEN'] = xsrfToken;
+  } catch(e) {
+    console.log('xarid: sessiya xatolik -', e.message);
+  }
+
+  // 2. Birinchi sahifani olish (3 urinish)
+  let firstBatch = null;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const res = await axios.post(apiUrl,
+        { region_ids: [], from: 1, to: pageSize },
+        { httpsAgent, timeout: 25000, headers: apiHeaders }
+      );
+      if (Array.isArray(res.data) && res.data.length > 0) { firstBatch = res.data; break; }
+    } catch(e) {
+      console.log(`xarid: 1-sahifa (${attempt}-urinish) -`, e.message);
+      if (attempt < 3) await new Promise(r => setTimeout(r, 3000));
+    }
+  }
+  if (!firstBatch) return [];
 
   const allLots = [...firstBatch];
+  const totalCount = firstBatch[0]?.total_count;
 
+  let totalPages;
+  if (totalCount) {
+    totalPages = Math.ceil(totalCount / pageSize);
+    console.log(`xarid: jami ${totalCount} lot, ${totalPages} sahifa`);
+  } else {
+    totalPages = 100; // noma'lum — bo'sh javob kelgunga qadar olish
+    console.log('xarid: total_count topilmadi, 100 sahifaga qadar uriniladi');
+  }
+
+  // 3. Qolgan sahifalarni parallel (5 lik partiyalarda)
   for (let batchStart = 2; batchStart <= totalPages; batchStart += 5) {
     const batchEnd = Math.min(batchStart + 4, totalPages);
     const pageNums = Array.from({ length: batchEnd - batchStart + 1 }, (_, i) => batchStart + i);
 
-    const results = await Promise.allSettled(pageNums.map(async p => {
-      const r = await axios.post(apiUrl,
+    const results = await Promise.allSettled(pageNums.map(p =>
+      axios.post(apiUrl,
         { region_ids: [], from: (p - 1) * pageSize + 1, to: p * pageSize },
-        { httpsAgent, timeout: 15000, headers: capturedHeaders }
-      );
-      return r.data;
-    }));
+        { httpsAgent, timeout: 15000, headers: apiHeaders }
+      ).then(r => r.data)
+    ));
 
     let gotData = false;
     for (const r of results) {

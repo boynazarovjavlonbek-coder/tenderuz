@@ -1,14 +1,36 @@
 TenderUZ server ishga tushdi: http://localhost:3000
 Cache to'ldirilmoqda (background)...
 Ma'lumot olinmoqda...
-etender: jami 674 tender, 68 sahifa
+etender: jami 668 tender, 67 sahifa
 xt-xarid [Тендер]: 8 faol
-xt-xarid [Аукцион]: 142 faol
+etender: 668 tender olindi
+xt-xarid [Аукцион]: 139 faol
 xt-xarid [Маҳаллий аукцион]: 15 faol
-xt-xarid [Таклифлар сўрови]: 96 faol
-xt-xarid: 261 faol jami
-etender: 674 tender olindi
-xarid: jami 482 lot, 25 sahifa
-xarid: 482 lot olindi
-Jami: 1417 (etender: 674, xarid: 482, xt: 261)
-Cache tayyor: 1417 ta tender
+xt-xarid [Таклифлар сўрови]: 95 faol
+xt-xarid: 257 faol jami
+xarid: jami 516 lot, 26 sahifa
+xarid: 516 lot olindi
+Jami: 1441 (etender: 668, xarid: 516, xt: 257)
+Cache tayyor: 1441 ta tender
+Cache yangilanmoqda...
+etender: jami 671 tender, 68 sahifa
+xt-xarid [Тендер]: 8 faol
+etender: 671 tender olindi
+xt-xarid [Аукцион]: 130 faol
+xt-xarid [Маҳаллий аукцион]: 14 faol
+xt-xarid [Таклифлар сўрови]: 94 faol
+xt-xarid: 246 faol jami
+xarid: jami 520 lot, 26 sahifa
+xarid: 520 lot olindi
+Jami: 1437 (etender: 671, xarid: 520, xt: 246)
+Cache yangilanmoqda...
+etender: jami 670 tender, 67 sahifa
+xt-xarid [Тендер]: 8 faol
+etender: 670 tender olindi
+xt-xarid [Аукцион]: 130 faol
+xt-xarid [Маҳаллий аукцион]: 14 faol
+xt-xarid [Таклифлар сўрови]: 94 faol
+xt-xarid: 246 faol jami
+xarid: jami 520 lot, 26 sahifa
+xarid: 520 lot olindi
+Jami: 1436 (etender: 670, xarid: 520, xt: 246)
