@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TenderUZ — Tenderlar ro'yxati</title>
+  <link rel="stylesheet" href="/shared.css">
+  <style>
+    .page-title-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .page-h1 { font-size: 22px; font-weight: 800; color: #0d2d52; }
+    .view-btns { display: flex; gap: 4px; }
+    .view-btn {
+      padding: 6px 12px; border: 1.5px solid #ddd; border-radius: 8px;
+      background: #fff; cursor: pointer; font-size: 16px; transition: all .12s;
+    }
+    .view-btn.active { background: #1a4a80; border-color: #1a4a80; color: #fff; }
+    .sort-select { padding: 8px 12px; border: 1.5px solid #e0e0e0; border-radius: 8px; font-size: 13px; background: #fff; outline: none; font-family: inherit; cursor: pointer; }
+    .sort-select:focus { border-color: #1a4a80; }
+    .no-results { text-align: center; padding: 60px 20px; color: #bbb; }
+    .no-results .nr-icon { font-size: 48px; margin-bottom: 12px; }
+    .no-results .nr-text { font-size: 15px; }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-left">
+    <a class="logo" href="/">
+      <div class="logo-mark">T</div>
+      <div class="logo-text">
+        <div class="logo-name">TenderUZ</div>
+        <div class="logo-sub">O'zbekiston tenderlar agregatori</div>
+      </div>
+    </a>
+    <nav class="nav" id="mainNav">
+      <a class="nav-link" href="/">Bosh sahifa</a>
+      <a class="nav-link active" href="/tenders.html">Tenderlar</a>
+      <a class="nav-link" href="/categories.html">Kategoriyalar</a>
+      <a class="nav-link" href="/statistics.html">Statistika</a>
+    </nav>
+    <button class="hamburger" id="hamburger" onclick="toggleNav()" aria-label="Menyu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="header-right">
+    <div class="hstat-lbl" id="lastUpdate" style="color:rgba(255,255,255,.55)"></div>
+  </div>
+</header>
+
+<div class="fetch-banner" id="fetchBanner">
+  <div class="spin"></div>
+  <span>Ma'lumotlar yuklanmoqda, iltimos kuting...</span>
+</div>
+
+<div class="page">
+
+  <div class="page-title-bar">
+    <div class="page-h1">📋 Tenderlar ro'yxati</div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <div id="resultsCount" style="font-size:13px;color:#888"></div>
+      <div class="view-btns">
+        <button class="view-btn active" id="btnGrid" onclick="setView('grid')" title="Katak ko'rinish">⊞</button>
+        <button class="view-btn" id="btnList" onclick="setView('list')" title="Ro'yxat ko'rinish">≡</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FILTER BAR -->
+  <div class="filters-bar">
+    <div class="filters-row">
+      <input class="finput" style="flex:2;min-width:220px" type="text" id="searchInput" placeholder="🔍  Tender nomi, tashkilot nomi...">
+      <select class="fselect" id="platFilter" onchange="applyFilters()">
+        <option value="all">Barcha platformalar</option>
+        <option value="etender">etender.uzex.uz</option>
+        <option value="xarid">xarid.uzex.uz</option>
+        <option value="xt">xt-xarid.uz</option>
+      </select>
+      <select class="fselect" id="catFilter" onchange="applyFilters()">
+        <option value="all">Barcha kategoriyalar</option>
+        <option value="IT">💻 IT</option>
+        <option value="Qurilish">🏗️ Qurilish</option>
+        <option value="Tibbiy">🏥 Tibbiy</option>
+        <option value="Transport">🚗 Transport</option>
+        <option value="Oziq-ovqat">🍎 Oziq-ovqat</option>
+        <option value="Mebel">🪑 Mebel</option>
+        <option value="Boshqa">📦 Boshqa</option>
+      </select>
+      <select class="fselect" id="regionFilter" onchange="applyFilters()">
+        <option value="all">Barcha viloyatlar</option>
+      </select>
+      <button class="btn-primary" onclick="applyFilters()">Qidirish</button>
+      <button onclick="resetFilters()" style="padding:9px 14px;border:1.5px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;font-size:12px;color:#666;font-family:inherit">Tozalash</button>
+    </div>
+    <div class="filters-row" style="border-top:1px solid #f0f0f0;padding-top:10px">
+      <select class="fselect" id="deadlineFilter" onchange="applyFilters()">
+        <option value="">Muddat: barchasi</option>
+        <option value="0">Bugun tugaydi</option>
+        <option value="3">3 kun ichida</option>
+        <option value="7">7 kun ichida</option>
+        <option value="30">30 kun ichida</option>
+      </select>
+      <select class="fselect" id="priceFilter" onchange="applyFilters()">
+        <option value="">Narx: barchasi</option>
+        <option value="10000000">10 mln so'm+</option>
+        <option value="50000000">50 mln so'm+</option>
+        <option value="100000000">100 mln so'm+</option>
+        <option value="500000000">500 mln so'm+</option>
+        <option value="1000000000">1 mlrd so'm+</option>
+      </select>
+      <select class="sort-select" id="sortFilter" onchange="applyFilters()">
+        <option value="date_desc">🕒 Yangi avval</option>
+        <option value="deadline_asc">⏰ Muddati yaqin</option>
+        <option value="price_desc">💰 Narx: yuqoridan</option>
+        <option value="price_asc">💰 Narx: pastdan</option>
+      </select>
+      <div class="active-filters" id="activeFilters"></div>
+      <div class="results-info" id="resultsInfo"></div>
+    </div>
+  </div>
+
+  <!-- CARDS -->
+  <div class="cards-grid" id="cardsGrid"></div>
+
+  <!-- PAGINATION -->
+  <div id="pgWrap" class="pg-wrap" style="margin-top:24px"></div>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal()">&#10005;</button>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+/* ── state ── */
+let page = 1;
+const LIMIT = 20;
+let totalPages = 1;
+let viewMode = 'grid';
+let tendersCache = {};
+let regionsLoaded = false;
+
+/* ── utils ── */
+function fmt(n) { return n == null ? '—' : Number(n).toLocaleString('ru'); }
+function esc(s) { const d = document.createElement('div'); d.textContent = s||''; return d.innerHTML; }
+function fmtDate(s) {
+  if (!s) return '—';
+  const d = new Date(s);
+  return d.toLocaleDateString('uz-Latn', { day:'2-digit', month:'2-digit', year:'numeric' });
+}
+function daysChip(d, big) {
+  const cls = big ? 'days-big' : 'days-chip';
+  if (d === 999 || d == null) return `<span class="${cls} c-none">Muddat yo'q</span>`;
+  if (d <= 0)  return `<span class="${cls} c-urgent">Bugun tugaydi</span>`;
+  if (d <= 3)  return `<span class="${cls} c-urgent">🔴 ${d} kun</span>`;
+  if (d <= 7)  return `<span class="${cls} c-warn">🟡 ${d} kun</span>`;
+  return `<span class="${cls} c-ok">🟢 ${d} kun</span>`;
+}
+
+/* ── view toggle ── */
+function setView(v) {
+  viewMode = v;
+  document.getElementById('cardsGrid').className = 'cards-grid' + (v==='list' ? ' list-view' : '');
+  document.getElementById('btnGrid').classList.toggle('active', v==='grid');
+  document.getElementById('btnList').classList.toggle('active', v==='list');
+}
+
+/* ── read filters ── */
+function getFilters() {
+  return {
+    search:      document.getElementById('searchInput').value.trim(),
+    platform:    document.getElementById('platFilter').value,
+    category:    document.getElementById('catFilter').value,
+    region:      document.getElementById('regionFilter').value,
+    deadlineDays:document.getElementById('deadlineFilter').value,
+    minPrice:    document.getElementById('priceFilter').value,
+    sort:        document.getElementById('sortFilter').value,
+  };
+}
+
+/* ── active filter chips ── */
+const FILTER_LABELS = {
+  platform:     { all:'', etender:'etender.uzex.uz', xarid:'xarid.uzex.uz', xt:'xt-xarid.uz' },
+  category:     { all:'' },
+  deadlineDays: { '':'', '0':'Bugun', '3':'3 kun', '7':'7 kun', '30':'30 kun' },
+  minPrice:     { '':'', '10000000':'10 mln+', '50000000':'50 mln+', '100000000':'100 mln+', '500000000':'500 mln+', '1000000000':'1 mlrd+' },
+};
+function renderActiveFilters(f) {
+  const chips = [];
+  const add = (key, label, clearFn) => chips.push(
+    `<span class="af-chip">${label} <button onclick="${clearFn}" title="O'chirish">×</button></span>`
+  );
+  if (f.search) add('search', `🔍 "${f.search}"`, `document.getElementById('searchInput').value='';applyFilters()`);
+  if (f.platform !== 'all' && FILTER_LABELS.platform[f.platform]) add('platform', FILTER_LABELS.platform[f.platform], `document.getElementById('platFilter').value='all';applyFilters()`);
+  if (f.category !== 'all') add('cat', f.category, `document.getElementById('catFilter').value='all';applyFilters()`);
+  if (f.region !== 'all') add('region', `📍 ${f.region}`, `document.getElementById('regionFilter').value='all';applyFilters()`);
+  if (f.deadlineDays && FILTER_LABELS.deadlineDays[f.deadlineDays]) add('dl', `⏰ ${FILTER_LABELS.deadlineDays[f.deadlineDays]}`, `document.getElementById('deadlineFilter').value='';applyFilters()`);
+  if (f.minPrice && FILTER_LABELS.minPrice[f.minPrice]) add('pr', `💰 ${FILTER_LABELS.minPrice[f.minPrice]}`, `document.getElementById('priceFilter').value='';applyFilters()`);
+  document.getElementById('activeFilters').innerHTML = chips.join('');
+}
+
+/* ── fetch & render ── */
+async function fetchTenders() {
+  const f = getFilters();
+  renderActiveFilters(f);
+
+  const params = new URLSearchParams({ page, limit:LIMIT, sort:f.sort });
+  if (f.platform !== 'all')  params.set('platform', f.platform);
+  if (f.category !== 'all')  params.set('category', f.category);
+  if (f.region   !== 'all')  params.set('region',   f.region);
+  if (f.search)               params.set('search',   f.search);
+  if (f.deadlineDays)         params.set('deadlineDays', f.deadlineDays);
+  if (f.minPrice)             params.set('minPrice', f.minPrice);
+
+  document.getElementById('cardsGrid').innerHTML =
+    Array(4).fill(`<div class="tender-card"><div class="skeleton" style="height:20px;width:60%;margin-bottom:12px"></div><div class="skeleton" style="height:40px;margin-bottom:10px"></div><div class="skeleton" style="height:14px;width:80%"></div></div>`).join('');
+
+  try {
+    const d = await fetch('/api/tenders?'+params).then(r=>r.json());
+    if (!d.success) throw new Error(d.message);
+
+    totalPages = d.totalPages || 1;
+    document.getElementById('resultsCount').textContent = `${fmt(d.total)} ta`;
+    document.getElementById('resultsInfo').textContent  = `${fmt(d.total)} ta natija · sahifa ${d.page}/${totalPages}`;
+
+    // Load regions once
+    if (!regionsLoaded && d.regions && d.regions.length) {
+      const sel = document.getElementById('regionFilter');
+      d.regions.forEach(r => {
+        const o = document.createElement('option'); o.value = r; o.textContent = r;
+        sel.appendChild(o);
+      });
+      regionsLoaded = true;
+    }
+
+    if (!d.data || d.data.length === 0) {
+      document.getElementById('cardsGrid').innerHTML =
+        `<div class="no-results" style="grid-column:1/-1"><div class="nr-icon">🔍</div><div class="nr-text">Hech narsa topilmadi. Filtrlarni o'zgartiring.</div></div>`;
+      document.getElementById('pgWrap').innerHTML = '';
+      return;
+    }
+
+    d.data.forEach(t => tendersCache[t.id] = t);
+    document.getElementById('cardsGrid').innerHTML = d.data.map(renderCard).join('');
+    renderPagination(d.page, totalPages);
+  } catch(e) {
+    document.getElementById('cardsGrid').innerHTML =
+      `<div class="no-results" style="grid-column:1/-1"><div class="nr-icon">⚠️</div><div class="nr-text">Xatolik: ${esc(e.message)}</div></div>`;
+  }
+}
+
+/* ── render single card ── */
+function renderCard(t) {
+  return `
+    <div class="tender-card" onclick="openModal('${esc(t.id)}')">
+      <div class="tc-top">
+        <div class="tc-badges">
+          <span class="plat-badge ${t.platform}">${esc(t.platformName)}</span>
+          <span class="cat-tag">${esc(t.category)}</span>
+          ${t.procedureType ? `<span class="cat-tag" style="color:#b06000">${esc(t.procedureType)}</span>` : ''}
+        </div>
+        ${daysChip(t.daysLeft)}
+      </div>
+      <div class="tc-title">${esc(t.title)}</div>
+      <div class="tc-meta">
+        ${t.customer ? `<span class="loc-tag">👤 ${esc(t.customer.length>40?t.customer.slice(0,40)+'…':t.customer)}</span>` : ''}
+        ${t.location ? `<span class="loc-tag">📍 ${esc(t.location)}</span>` : ''}
+      </div>
+      <div class="tc-bottom">
+        <div class="tc-price">
+          ${esc(t.price)} <small>${esc(t.currency)}</small>
+        </div>
+        <button class="btn-detail" onclick="event.stopPropagation();openModal('${esc(t.id)}')">
+          Batafsil →
+        </button>
+      </div>
+    </div>`;
+}
+
+/* ── pagination ── */
+function renderPagination(cur, total) {
+  if (total <= 1) { document.getElementById('pgWrap').innerHTML=''; return; }
+  const btn = (p, lbl, active, dis) =>
+    `<button onclick="goPage(${p})" class="pg-btn${active?' pg-btn-active':''}${dis?' pg-btn-dis':''}" ${dis?'disabled':''}>${lbl}</button>`;
+  let html = btn(cur-1,'← Oldingi',false,cur===1);
+  const pages = [];
+  for (let i=1;i<=total;i++) {
+    if (i===1||i===total||(i>=cur-2&&i<=cur+2)) pages.push(i);
+    else if (pages[pages.length-1]!=='…') pages.push('…');
+  }
+  pages.forEach(p => { html += p==='…'?`<span class="pg-dots">…</span>`:btn(p,p,p===cur,false); });
+  html += btn(cur+1,'Keyingi →',false,cur===total);
+  document.getElementById('pgWrap').innerHTML = html;
+}
+function goPage(p) {
+  page = p;
+  fetchTenders();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ── apply filters (reset to page 1) ── */
+function applyFilters() { page=1; fetchTenders(); }
+function resetFilters() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('platFilter').value  = 'all';
+  document.getElementById('catFilter').value   = 'all';
+  document.getElementById('regionFilter').value= 'all';
+  document.getElementById('deadlineFilter').value = '';
+  document.getElementById('priceFilter').value    = '';
+  document.getElementById('sortFilter').value     = 'date_desc';
+  applyFilters();
+}
+
+/* ── modal ── */
+function openModal(id) {
+  const t = tendersCache[id]; if (!t) return;
+  const pc = { etender:'#27ae60', xarid:'#2980b9', xt:'#e67e22' }[t.platform] || '#888';
+  const deadlineDate = t.deadline ? fmtDate(t.deadline) : '—';
+  document.getElementById('modalBody').innerHTML = `
+    <div class="modal-header">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+        <span class="plat-badge ${t.platform}">${esc(t.platformName)}</span>
+        <span class="cat-tag">${esc(t.category)}</span>
+        ${t.location ? `<span class="loc-tag">📍 ${esc(t.location)}</span>` : ''}
+        ${t.procedureType ? `<span class="cat-tag" style="background:#fff3e0;color:#b06000">${esc(t.procedureType)}</span>` : ''}
+      </div>
+      <div class="modal-title">${esc(t.title)}</div>
+    </div>
+    <div class="modal-stats">
+      <div class="modal-stat-box">
+        <div class="msb-lbl">💰 Boshlang'ich narx</div>
+        <div class="msb-num">${esc(t.price)}</div>
+        <div class="msb-unit">${esc(t.currency)}</div>
+      </div>
+      <div class="modal-stat-box">
+        <div class="msb-lbl">⏱ Muddat</div>
+        <div style="margin:6px 0">${daysChip(t.daysLeft, true)}</div>
+        <div class="msb-unit">${deadlineDate} gacha</div>
+      </div>
+    </div>
+    <div class="modal-meta">
+      ${t.customer ? `<div class="mm-row"><span class="mm-icon">👤</span><span class="mm-lbl">Xaridor</span><span class="mm-val">${esc(t.customer)}</span></div>` : ''}
+      ${t.location ? `<div class="mm-row"><span class="mm-icon">📍</span><span class="mm-lbl">Viloyat</span><span class="mm-val">${esc(t.location)}${t.district?', '+esc(t.district):''}</span></div>` : ''}
+      ${t.displayNo ? `<div class="mm-row"><span class="mm-icon">🔢</span><span class="mm-lbl">Tender №</span><span class="mm-val">${esc(t.displayNo)}</span></div>` : ''}
+      <div class="mm-row"><span class="mm-icon">🏢</span><span class="mm-lbl">Platforma</span><span class="mm-val" style="color:${pc}">${esc(t.platformName)}</span></div>
+    </div>
+    <div class="modal-footer">
+      <a class="btn-modal-link" href="${esc(t.url)}" target="_blank" rel="noopener">
+        Asl saytda ko'rish →
+      </a>
+    </div>`;
+  document.getElementById('modalOverlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('show');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+document.getElementById('searchInput').addEventListener('keypress', e => { if(e.key==='Enter') applyFilters(); });
+
+/* ── init ── */
+(async () => {
+  try {
+    const s = await fetch('/api/status').then(r=>r.json());
+    document.getElementById('fetchBanner').classList.toggle('show', !!s.isFetching);
+    if (s.lastFetch) {
+      const ago = Math.floor((Date.now() - new Date(s.lastFetch)) / 60000);
+      document.getElementById('lastUpdate').textContent =
+        ago < 1 ? 'Hozir yangilandi' : `${ago} daqiqa oldin yangilangan`;
+    }
+    if (s.isFetching) {
+      const t = setInterval(async () => {
+        const st = await fetch('/api/status').then(r=>r.json()).catch(()=>({}));
+        if (!st.isFetching && st.ready) {
+          clearInterval(t);
+          document.getElementById('fetchBanner').classList.remove('show');
+          fetchTenders();
+        }
+      }, 3000);
+    }
+  } catch(e) {}
+
+  // Check URL params
+  const q = new URLSearchParams(location.search);
+  if (q.get('platform')) { document.getElementById('platFilter').value = q.get('platform'); }
+  if (q.get('category')) { document.getElementById('catFilter').value  = q.get('category'); }
+  if (q.get('search'))   { document.getElementById('searchInput').value = q.get('search'); }
+
+  fetchTenders();
+})();
+</script>
+<script src="/shared.js"></script>
+</body>
+</html>

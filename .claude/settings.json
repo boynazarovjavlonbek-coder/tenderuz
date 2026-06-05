@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node probe_xarid_pg.js)",
+      "Bash(node probe_xarid_pages.js)",
+      "Bash(node probe_xarid_click.js)",
+      "Bash(node probe_xarid_dom.js)",
+      "Bash(node probe_saby.js)"
+    ]
+  }
+}

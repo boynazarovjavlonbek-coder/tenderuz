@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TenderUZ — Statistika</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="/shared.css">
+  <style>
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px; }
+    .stats-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+    .big-stat { background:#fff; border-radius:14px; padding:24px; box-shadow:0 1px 8px rgba(0,0,0,.07); text-align:center; }
+    .bs-num  { font-size:42px; font-weight:900; color:#0d2d52; line-height:1; }
+    .bs-lbl  { font-size:13px; color:#888; margin-top:8px; }
+    .bs-sub  { font-size:11px; color:#aaa; margin-top:4px; }
+    .platform-row { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:20px; }
+    .plat-card {
+      border-radius:14px; padding:20px; color:#fff;
+      display:flex; flex-direction:column; gap:6px;
+    }
+    .plat-card.et { background:linear-gradient(135deg,#1a8a50,#27ae60); }
+    .plat-card.xr { background:linear-gradient(135deg,#1a6ba0,#2980b9); }
+    .plat-card.xt { background:linear-gradient(135deg,#c05a10,#e67e22); }
+    .pc-name { font-size:13px; opacity:.8; font-weight:600; }
+    .pc-num  { font-size:36px; font-weight:900; line-height:1; }
+    .pc-lbl  { font-size:12px; opacity:.7; }
+    .deadline-row { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px; }
+    .dl-card { background:#fff; border-radius:12px; padding:16px; box-shadow:0 1px 6px rgba(0,0,0,.07); border-top:3px solid; text-align:center; }
+    .dl-num  { font-size:28px; font-weight:800; color:#0d2d52; }
+    .dl-lbl  { font-size:11px; color:#888; margin-top:4px; }
+    @media (max-width:900px) {
+      .stats-grid, .platform-row, .deadline-row { grid-template-columns:1fr 1fr; }
+      .stats-grid-2 { grid-template-columns:1fr; }
+    }
+    @media (max-width:600px) {
+      .stats-grid, .deadline-row { grid-template-columns:1fr 1fr; }
+      .platform-row { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-left">
+    <a class="logo" href="/">
+      <div class="logo-mark">T</div>
+      <div class="logo-text">
+        <div class="logo-name">TenderUZ</div>
+        <div class="logo-sub">O'zbekiston tenderlar agregatori</div>
+      </div>
+    </a>
+    <nav class="nav" id="mainNav">
+      <a class="nav-link" href="/">Bosh sahifa</a>
+      <a class="nav-link" href="/tenders.html">Tenderlar</a>
+      <a class="nav-link" href="/categories.html">Kategoriyalar</a>
+      <a class="nav-link active" href="/statistics.html">Statistika</a>
+    </nav>
+    <button class="hamburger" id="hamburger" onclick="toggleNav()" aria-label="Menyu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="header-right">
+    <div class="hstat-lbl" id="lastUpdate" style="color:rgba(255,255,255,.55)"></div>
+    <button class="btn-accent" onclick="loadStats()">&#8635; Yangilash</button>
+  </div>
+</header>
+
+<div class="fetch-banner" id="fetchBanner">
+  <div class="spin"></div>
+  <span>Ma'lumotlar yuklanmoqda...</span>
+</div>
+
+<div class="page">
+
+  <div class="page-hero">
+    <h1>📈 Tenderlar statistikasi</h1>
+    <p>O'zbekiston davlat xaridlari platformalarining real vaqt ma'lumotlari</p>
+  </div>
+
+  <!-- BIG STATS -->
+  <div class="stats-grid">
+    <div class="big-stat">
+      <div class="bs-num" id="stTotal">—</div>
+      <div class="bs-lbl">Jami faol tender</div>
+      <div class="bs-sub">3 ta platforma</div>
+    </div>
+    <div class="big-stat">
+      <div class="bs-num" style="color:#e74c3c" id="stUrgent">—</div>
+      <div class="bs-lbl">Muddati yaqin (7 kun)</div>
+      <div class="bs-sub">shoshilinch e'lon</div>
+    </div>
+    <div class="big-stat">
+      <div class="bs-num" style="color:#27ae60" id="stSumMlrd">—</div>
+      <div class="bs-lbl">Umumiy summa</div>
+      <div class="bs-sub">mlrd so'm (taxminiy)</div>
+    </div>
+  </div>
+
+  <!-- PLATFORM CARDS -->
+  <div class="platform-row">
+    <div class="plat-card et">
+      <div class="pc-name">🟢 etender.uzex.uz</div>
+      <div class="pc-num" id="stEt">—</div>
+      <div class="pc-lbl">faol tender</div>
+    </div>
+    <div class="plat-card xr">
+      <div class="pc-name">🔵 xarid.uzex.uz</div>
+      <div class="pc-num" id="stXr">—</div>
+      <div class="pc-lbl">auksion lot</div>
+    </div>
+    <div class="plat-card xt">
+      <div class="pc-name">🟠 xt-xarid.uz</div>
+      <div class="pc-num" id="stXt">—</div>
+      <div class="pc-lbl">elektron xarid</div>
+    </div>
+  </div>
+
+  <!-- DEADLINE CARDS -->
+  <div class="deadline-row">
+    <div class="dl-card" style="border-color:#e74c3c">
+      <div class="dl-num" style="color:#e74c3c" id="dlToday">—</div>
+      <div class="dl-lbl">Bugun tugaydi</div>
+    </div>
+    <div class="dl-card" style="border-color:#e74c3c">
+      <div class="dl-num" style="color:#e74c3c" id="dlD3">—</div>
+      <div class="dl-lbl">1–3 kun qoldi</div>
+    </div>
+    <div class="dl-card" style="border-color:#e67e22">
+      <div class="dl-num" style="color:#e67e22" id="dlD7">—</div>
+      <div class="dl-lbl">4–7 kun qoldi</div>
+    </div>
+    <div class="dl-card" style="border-color:#27ae60">
+      <div class="dl-num" style="color:#27ae60" id="dlD30">—</div>
+      <div class="dl-lbl">8–30 kun qoldi</div>
+    </div>
+  </div>
+
+  <!-- CHARTS -->
+  <div class="stats-grid-2">
+    <div class="card">
+      <div class="card-title"><span>🏢</span> Platforma bo'yicha taqsimot</div>
+      <div style="height:240px;position:relative;display:flex;align-items:center;justify-content:center">
+        <canvas id="cPlatform"></canvas>
+        <div class="donut-center"><div class="donut-num" id="dcP">—</div><div class="donut-lbl">jami</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span>📂</span> Kategoriya bo'yicha taqsimot</div>
+      <div style="height:240px;position:relative;display:flex;align-items:center;justify-content:center">
+        <canvas id="cCategory"></canvas>
+        <div class="donut-center"><div class="donut-num" id="dcC">—</div><div class="donut-lbl">kategoriya</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span>⏱️</span> Muddat bo'yicha taqsimot</div>
+      <div style="height:220px;position:relative">
+        <canvas id="cDeadline"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span>📍</span> Viloyat bo'yicha (Top 10)</div>
+      <div style="height:220px;position:relative">
+        <canvas id="cRegion"></canvas>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let charts = {};
+function fmt(n) { return n==null?'—':Number(n).toLocaleString('ru'); }
+
+function donut(id, labels, data, colors, centerId) {
+  const ctx = document.getElementById(id); if (!ctx) return;
+  if (charts[id]) charts[id].destroy();
+  charts[id] = new Chart(ctx, {
+    type:'doughnut',
+    data:{ labels, datasets:[{ data, backgroundColor:colors, borderWidth:2, borderColor:'#fff', hoverOffset:6 }] },
+    options:{
+      responsive:true, maintainAspectRatio:false, cutout:'66%',
+      plugins:{
+        legend:{ position:'bottom', labels:{ boxWidth:10, padding:12, font:{size:11} } },
+        tooltip:{ callbacks:{ label:c=>` ${c.label}: ${fmt(c.raw)}` } }
+      }
+    }
+  });
+  if (centerId) document.getElementById(centerId).textContent = fmt(data.reduce((a,b)=>a+b,0));
+}
+
+function barChart(id, labels, data, colors, vertical=false) {
+  const ctx = document.getElementById(id); if (!ctx) return;
+  if (charts[id]) charts[id].destroy();
+  charts[id] = new Chart(ctx, {
+    type:'bar',
+    data:{ labels, datasets:[{ data, backgroundColor:colors||'#2471a3', borderRadius:5, borderSkipped:false }] },
+    options:{
+      responsive:true, maintainAspectRatio:false, indexAxis: vertical?'x':'y',
+      plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:c=>` ${fmt(c.raw)} ta` } } },
+      scales:{
+        x:{ grid:{color:'#f0f0f0'}, ticks:{font:{size:11}} },
+        y:{ grid:{display:false}, ticks:{font:{size:11}} }
+      }
+    }
+  });
+}
+
+async function loadStats() {
+  try {
+    const s = await fetch('/api/status').then(r=>r.json());
+    document.getElementById('fetchBanner').classList.toggle('show', !!s.isFetching);
+    if (s.lastFetch) {
+      const ago = Math.floor((Date.now()-new Date(s.lastFetch))/60000);
+      document.getElementById('lastUpdate').textContent =
+        ago<1?'Hozir yangilandi':ago<60?`${ago} daqiqa oldin yangilangan`:'Yangilangan: '+new Date(s.lastFetch).toLocaleTimeString('uz',{hour:'2-digit',minute:'2-digit'});
+    }
+  } catch(e) {}
+
+  try {
+    const [stats, cats] = await Promise.all([
+      fetch('/api/stats').then(r=>r.json()),
+      fetch('/api/categories').then(r=>r.json()),
+    ]);
+
+    if (stats && stats.total) {
+      document.getElementById('stTotal').textContent  = fmt(stats.total);
+      document.getElementById('stUrgent').textContent = fmt(stats.deadline.today + stats.deadline.d3 + stats.deadline.d7);
+      document.getElementById('stEt').textContent = fmt(stats.platforms.etender||0);
+      document.getElementById('stXr').textContent = fmt(stats.platforms.xarid||0);
+      document.getElementById('stXt').textContent = fmt(stats.platforms.xt||0);
+      document.getElementById('dlToday').textContent = fmt(stats.deadline.today);
+      document.getElementById('dlD3').textContent    = fmt(stats.deadline.d3);
+      document.getElementById('dlD7').textContent    = fmt(stats.deadline.d7);
+      document.getElementById('dlD30').textContent   = fmt(stats.deadline.d30);
+
+      donut('cPlatform',
+        ['etender.uzex.uz','xarid.uzex.uz','xt-xarid.uz'],
+        [stats.platforms.etender||0, stats.platforms.xarid||0, stats.platforms.xt||0],
+        ['#27ae60','#2980b9','#e67e22'], 'dcP');
+
+      const catOrder = ['Qurilish','IT','Tibbiy','Transport','Oziq-ovqat','Mebel','Boshqa'];
+      donut('cCategory', catOrder, catOrder.map(k=>stats.categories[k]||0),
+        ['#3498db','#9b59b6','#e74c3c','#e67e22','#27ae60','#1abc9c','#95a5a6'], null);
+      document.getElementById('dcC').textContent = Object.keys(stats.categories).length;
+
+      barChart('cDeadline',
+        ['Bugun','1–3 kun','4–7 kun','8–30 kun','31–60 kun','60+ kun'],
+        [stats.deadline.today, stats.deadline.d3, stats.deadline.d7, stats.deadline.d30, stats.deadline.d60, stats.deadline.more],
+        ['#e74c3c','#e74c3c','#e67e22','#f1c40f','#27ae60','#27ae60'], true);
+
+      if (stats.topRegions) {
+        const entries = Object.entries(stats.topRegions).sort((a,b)=>b[1]-a[1]);
+        const short = s => s.replace(/вилоят|viloyati|область|Республика|Respublikasi/gi,'').trim().slice(0,18);
+        barChart('cRegion', entries.map(([k])=>short(k)), entries.map(([,v])=>v));
+      }
+    }
+
+    if (cats && cats.success) {
+      document.getElementById('stSumMlrd').textContent = fmt(Math.round(cats.total));
+    }
+  } catch(e) { console.error(e); }
+}
+
+(async () => {
+  try {
+    const s = await fetch('/api/status').then(r=>r.json());
+    if (s.isFetching) {
+      document.getElementById('fetchBanner').classList.add('show');
+      const t = setInterval(async () => {
+        const st = await fetch('/api/status').then(r=>r.json()).catch(()=>({}));
+        if (!st.isFetching && st.ready) { clearInterval(t); document.getElementById('fetchBanner').classList.remove('show'); loadStats(); }
+      }, 3000);
+    }
+  } catch(e) {}
+  loadStats();
+  setInterval(loadStats, 60000);
+})();
+</script>
+<script src="/shared.js"></script>
+</body>
+</html>

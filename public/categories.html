@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TenderUZ — Kategoriyalar</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="/shared.css">
+  <style>
+    .sum-card {
+      background: #fff; border-radius: 14px; padding: 18px 20px;
+      box-shadow: 0 1px 6px rgba(0,0,0,.07); border-top: 3px solid transparent;
+    }
+    .sum-card.c1 { border-color: #3498db; }
+    .sum-card.c2 { border-color: #27ae60; }
+    .sum-card.c3 { border-color: #e67e22; }
+    .sum-card.c4 { border-color: #9b59b6; }
+    .sum-lbl { font-size: 12px; color: #999; margin-bottom: 6px; }
+    .sum-num { font-size: 26px; font-weight: 800; color: #0d2d52; line-height: 1; }
+    .sum-unit { font-size: 12px; color: #aaa; margin-top: 3px; }
+
+    .main-row { display: grid; grid-template-columns: 400px 1fr; gap: 20px; }
+    .donut-wrap {
+      position: relative; height: 280px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .dc-num  { font-size: 30px; font-weight: 900; color: #0d2d52; line-height: 1; }
+    .dc-unit { font-size: 12px; color: #aaa; margin-top: 4px; font-weight: 500; }
+    .cat-name-cell { display: flex; align-items: center; gap: 8px; }
+    .cat-label { font-weight: 600; color: #0d2d52; }
+    .cat-sub   { font-size: 11px; color: #bbb; margin-top: 1px; }
+    .bar-wrap  { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
+    .cust-val  { color: #2471a3; font-weight: 600; }
+    .sum-val   { font-weight: 700; color: #0d2d52; min-width: 36px; text-align: right; }
+
+    @media (max-width: 1100px) {
+      .main-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-left">
+    <a class="logo" href="/">
+      <div class="logo-mark">T</div>
+      <div class="logo-text">
+        <div class="logo-name">TenderUZ</div>
+        <div class="logo-sub">O'zbekiston tenderlar agregatori</div>
+      </div>
+    </a>
+    <nav class="nav" id="mainNav">
+      <a class="nav-link" href="/">Bosh sahifa</a>
+      <a class="nav-link" href="/tenders.html">Tenderlar</a>
+      <a class="nav-link active" href="/categories.html">Kategoriyalar</a>
+      <a class="nav-link" href="/statistics.html">Statistika</a>
+    </nav>
+    <button class="hamburger" id="hamburger" onclick="toggleNav()" aria-label="Menyu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="header-right">
+    <div class="hstat-lbl" id="lastUpdate" style="color:rgba(255,255,255,.55)"></div>
+    <button class="btn-accent" id="btnRefresh" onclick="loadPage()">&#8635; Yangilash</button>
+  </div>
+</header>
+
+<div class="fetch-banner" id="fetchBanner">
+  <div class="spin"></div>
+  <span>Ma'lumotlar yuklanmoqda, iltimos kuting...</span>
+</div>
+
+<div class="page">
+
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
+    <span style="font-size:26px">📂</span>
+    <h1 style="font-size:22px;font-weight:800;color:#0d2d52">Kategoriyalar bo'yicha tahlil</h1>
+  </div>
+
+  <!-- SUMMARY CARDS -->
+  <div class="stat-row" style="margin-bottom:20px">
+    <div class="sum-card c1">
+      <div class="sum-lbl">Umumiy summa</div>
+      <div class="sum-num" id="sTotal">—</div>
+      <div class="sum-unit">mlrd so'm</div>
+    </div>
+    <div class="sum-card c2">
+      <div class="sum-lbl">Jami tenderlar</div>
+      <div class="sum-num" id="sTenders">—</div>
+      <div class="sum-unit">barcha platformalar</div>
+    </div>
+    <div class="sum-card c3">
+      <div class="sum-lbl">Noyob xaridorlar</div>
+      <div class="sum-num" id="sCustomers">—</div>
+      <div class="sum-unit">tashkilot/korxona</div>
+    </div>
+    <div class="sum-card c4">
+      <div class="sum-lbl">Kategoriyalar soni</div>
+      <div class="sum-num" id="sCats">—</div>
+      <div class="sum-unit">soha</div>
+    </div>
+  </div>
+
+  <!-- MAIN: Donut + Table -->
+  <div class="main-row">
+
+    <div class="card">
+      <div class="card-title"><span>🍩</span> Kategoriya taqsimoti</div>
+      <div class="donut-wrap">
+        <canvas id="catDonut"></canvas>
+        <div class="donut-center">
+          <div class="dc-num" id="dcTotal">—</div>
+          <div class="dc-unit">mlrd so'm</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+        <div class="card-title" style="margin:0"><span>📊</span> Kategoriyalar jadvali</div>
+        <div style="font-size:12px;color:#aaa" id="tableInfo"></div>
+      </div>
+
+      <table class="cat-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Kategoriya</th>
+            <th>Xaridorlar</th>
+            <th>Tenderlar</th>
+            <th>Summa (mlrd so'm)</th>
+          </tr>
+        </thead>
+        <tbody id="catTableBody">
+          <tr><td colspan="5" style="text-align:center;padding:40px;color:#bbb">Yuklanmoqda...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const CAT_COLORS = {
+  'Qurilish':'#3498db', 'IT':'#9b59b6', 'Tibbiy':'#e74c3c',
+  'Transport':'#e67e22', 'Oziq-ovqat':'#27ae60', 'Mebel':'#1abc9c', 'Boshqa':'#95a5a6',
+};
+const CAT_ICONS = {
+  'Qurilish':'🏗️', 'IT':'💻', 'Tibbiy':'🏥',
+  'Transport':'🚗', 'Oziq-ovqat':'🍎', 'Mebel':'🪑', 'Boshqa':'📦',
+};
+let donutChart = null;
+
+function fmt(n, dec=0) { return n == null ? '—' : Number(n).toLocaleString('ru', {minimumFractionDigits:dec,maximumFractionDigits:dec}); }
+
+function drawDonut(data, total) {
+  const ctx = document.getElementById('catDonut'); if (!ctx) return;
+  if (donutChart) donutChart.destroy();
+  const vals   = data.map(d => d.totalSumMlrd || 0);
+  const useCount = vals.every(v => v === 0);
+  donutChart = new Chart(ctx, {
+    type:'doughnut',
+    data:{
+      labels: data.map(d => d.name),
+      datasets:[{
+        data: useCount ? data.map(d=>d.count) : vals,
+        backgroundColor: data.map(d => CAT_COLORS[d.name]||'#bbb'),
+        borderWidth:3, borderColor:'#fff', hoverOffset:8,
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false, cutout:'70%',
+      plugins:{
+        legend:{
+          position:'bottom',
+          labels:{ boxWidth:12, boxHeight:12, padding:14, font:{size:12},
+            generateLabels(c){ return c.data.labels.map((lbl,i)=>({
+              text:`${CAT_ICONS[lbl]||''} ${lbl}`,
+              fillStyle:c.data.datasets[0].backgroundColor[i],
+              strokeStyle:'#fff', lineWidth:1, index:i
+            })); }
+          }
+        },
+        tooltip:{ callbacks:{ label(c){ const item=data[c.dataIndex]; return useCount?` ${item.name}: ${fmt(item.count)} ta`:` ${item.name}: ${fmt(Math.round(item.totalSumMlrd))} mlrd so'm`; } } }
+      }
+    }
+  });
+  document.getElementById('dcTotal').textContent = useCount ? fmt(total)+' ta' : fmt(Math.round(total));
+}
+
+function renderTable(data) {
+  const maxCount = Math.max(...data.map(d=>d.count), 1);
+  const maxSum   = Math.max(...data.map(d=>d.totalSumMlrd||0), 1);
+  const totalT   = data.reduce((s,d)=>s+d.count, 0);
+  document.getElementById('tableInfo').textContent = `Jami ${fmt(totalT)} ta tender`;
+  const RANK = ['r1','r2','r3'];
+  document.getElementById('catTableBody').innerHTML = data.map((d,i) => {
+    const color  = CAT_COLORS[d.name]||'#bbb';
+    const icon   = CAT_ICONS[d.name]||'📦';
+    const pct    = Math.round((d.count/maxCount)*100);
+    const sPct   = maxSum>0 ? Math.round((d.totalSumMlrd/maxSum)*100) : 0;
+    const share  = Math.round((d.count/totalT)*100);
+    const rCls   = i<3 ? RANK[i] : '';
+    return `<tr>
+      <td><span class="rank-badge ${rCls}">${i+1}</span></td>
+      <td>
+        <div class="cat-name-cell">
+          <span class="cat-dot" style="background:${color}"></span>
+          <div>
+            <div class="cat-label">${icon} ${d.name}</div>
+            <div class="cat-sub">${share}% ulush</div>
+          </div>
+        </div>
+      </td>
+      <td class="cust-val">${fmt(d.customers)}</td>
+      <td>
+        <div class="bar-wrap">
+          <div class="bar-bg"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
+          <span class="sum-val">${fmt(d.count)}</span>
+        </div>
+      </td>
+      <td>
+        <div class="bar-wrap">
+          <div class="bar-bg" style="width:80px"><div class="bar-fill" style="width:${sPct}%;background:${color}"></div></div>
+          <span class="sum-val">${d.totalSumMlrd>0?fmt(Math.round(d.totalSumMlrd)):'—'}</span>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function loadPage() {
+  const btn = document.getElementById('btnRefresh');
+  btn.disabled=true; btn.textContent='⏳ ...';
+  try {
+    const s = await fetch('/api/status').then(r=>r.json());
+    document.getElementById('fetchBanner').classList.toggle('show', !!s.isFetching);
+    if (s.lastFetch) {
+      const ago = Math.floor((Date.now()-new Date(s.lastFetch))/60000);
+      document.getElementById('lastUpdate').textContent =
+        ago<1?'Hozir yangilandi':ago<60?`${ago} daqiqa oldin`:'Yangilangan: '+new Date(s.lastFetch).toLocaleTimeString('uz',{hour:'2-digit',minute:'2-digit'});
+    }
+    const res = await fetch('/api/categories').then(r=>r.json());
+    if (!res.success||!res.data) return;
+    const data = res.data;
+    document.getElementById('sTotal').textContent     = fmt(Math.round(res.total));
+    document.getElementById('sTenders').textContent   = fmt(data.reduce((s,d)=>s+d.count,0));
+    document.getElementById('sCustomers').textContent = fmt(res.totalCustomers);
+    document.getElementById('sCats').textContent      = data.length;
+    drawDonut(data, res.total);
+    renderTable(data);
+  } catch(e) {
+    document.getElementById('catTableBody').innerHTML =
+      `<tr><td colspan="5" style="text-align:center;padding:40px;color:#e74c3c">Xatolik: ${e.message}</td></tr>`;
+  }
+  btn.disabled=false; btn.textContent='↻ Yangilash';
+}
+
+(async () => {
+  try {
+    const s = await fetch('/api/status').then(r=>r.json());
+    if (s.isFetching) {
+      document.getElementById('fetchBanner').classList.add('show');
+      const t = setInterval(async () => {
+        const st = await fetch('/api/status').then(r=>r.json()).catch(()=>({}));
+        if (!st.isFetching && st.ready) { clearInterval(t); document.getElementById('fetchBanner').classList.remove('show'); loadPage(); }
+      }, 3000);
+    }
+  } catch(e) {}
+  loadPage();
+  setInterval(loadPage, 60000);
+})();
+</script>
+<script src="/shared.js"></script>
+</body>
+</html>

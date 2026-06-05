@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node probe_etender3.js)",
+      "Bash(node screenshot_dash.js)",
+      "PowerShell(Start-Process \"http://localhost:3000\")",
+      "Bash(node -e \"const d=require\\('fs'\\).readFileSync\\(0,'utf8'\\);const j=JSON.parse\\(d\\);console.log\\('total:',j.total,'| etender:',j.platforms.etender,'| xarid:',j.platforms.xarid,'| xt:',j.platforms.xt,'| urgent:',j.urgent\\)\")",
+      "Bash(node -e ' *)",
+      "Bash(node probe_etender.js)",
+      "Bash(Get-Process -Name \"node\" -ErrorAction SilentlyContinue)",
+      "Bash(Stop-Process -Force)",
+      "Bash(Start-Sleep -Seconds 1)",
+      "Read(//c/Users/���/Desktop/tenderuz/**)",
+      "Bash(curl -s http://localhost:3000/api/stats)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('Jami:', d['total']\\); print\\('Urgent:', d['urgent']\\); print\\('Platformalar:', json.dumps\\(d['platforms'], ensure_ascii=False\\)\\); print\\('Kategoriyalar:', json.dumps\\(d['categories'], ensure_ascii=False\\)\\); print\\('Top 5 viloyat:', list\\(d['topRegions'].items\\(\\)\\)[:5]\\); print\\('Deadline:', json.dumps\\(d['deadline']\\)\\)\")",
+      "Bash(curl -sk -X POST https://apietender.uzex.uz/api/common/TradeList -H 'Content-Type: application/json' -d '{\"sub_user_id\":null,\"price_Min\":null,\"price_Max\":null,\"status_Id\":null,\"provider_Tin\":null,\"provider_Name\":null,\"start_Date\":null,\"end_Date\":null,\"currency_Id\":null,\"from\":1,\"to\":10,\"typeid\":1,\"System_Id\":0}' --max-time 30)",
+      "Bash(curl -s http://localhost:3000/api/refresh -X POST)",
+      "Bash(curl -s \"http://localhost:3000/api/status\")"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\���\\Desktop\\tenderuz"
+    ]
+  }
+}
