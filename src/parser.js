@@ -86,55 +86,64 @@ function normalizeCurrency(name) {
   return name;
 }
 
-// ── XARID — to'g'ridan axios bilan (Playwright o'rniga) ──
+// ── XARID — Playwright bilan header ushlash ──
 async function fetchFromXarid() {
+  const { chromium } = require('playwright');
+  const browser = await chromium.launch({ headless: true });
+  const context = await browser.newContext({ ignoreHTTPSErrors: true });
+  const page = await context.newPage();
+
+  let capturedHeaders = null;
+  let firstBatch = [];
+
+  await page.route('**/GetMinimizedLotsList', async (route, req) => {
+    capturedHeaders = { ...req.headers() };
+    const res = await route.fetch();
+    try { firstBatch = await res.json(); } catch(e) {}
+    await route.fulfill({ response: res });
+  });
+
+  await page.goto('https://xarid.uzex.uz/auction/list', { timeout: 40000 });
+  await page.waitForTimeout(8000);
+
+  let totalCount = firstBatch.length;
+  try {
+    const txt = await page.evaluate(() => document.body.innerText);
+    const m = txt.match(/Katalogda\s+(\d+)/);
+    if (m) totalCount = parseInt(m[1]);
+  } catch(e) {}
+
+  await browser.close();
+
+  if (firstBatch.length === 0) return [];
+
   const apiUrl = 'https://xarid-api-auction.uzex.uz/Common/GetMinimizedLotsList';
   const pageSize = 20;
-  const allLots = [];
+  const totalPages = Math.ceil(totalCount / pageSize);
+  console.log(`xarid: jami ${totalCount} lot, ${totalPages} sahifa`);
 
-  try {
-    // Birinchi sahifani olish
-    const firstRes = await axios.post(apiUrl,
-      { region_ids: [], from: 1, to: pageSize },
-      { httpsAgent, timeout: 20000, headers: { 'Content-Type': 'application/json' } }
-    );
-    const firstBatch = firstRes.data;
-    if (!Array.isArray(firstBatch) || firstBatch.length === 0) {
-      console.log('xarid: ma\'lumot olinmadi');
-      return [];
-    }
-    allLots.push(...firstBatch);
+  const allLots = [...firstBatch];
 
-    // Umumiy soni birinchi elementdan
-    const totalCount = firstBatch[0]?.total_count || firstBatch.length;
-    const totalPages = Math.ceil(totalCount / pageSize);
-    console.log(`xarid: jami ${totalCount} lot, ${totalPages} sahifa`);
+  for (let batchStart = 2; batchStart <= totalPages; batchStart += 5) {
+    const batchEnd = Math.min(batchStart + 4, totalPages);
+    const pageNums = Array.from({ length: batchEnd - batchStart + 1 }, (_, i) => batchStart + i);
 
-    // Qolgan sahifalarni parallel olish
-    for (let batchStart = 2; batchStart <= totalPages; batchStart += 5) {
-      const batchEnd = Math.min(batchStart + 4, totalPages);
-      const pageNums = Array.from({ length: batchEnd - batchStart + 1 }, (_, i) => batchStart + i);
+    const results = await Promise.allSettled(pageNums.map(async p => {
+      const r = await axios.post(apiUrl,
+        { region_ids: [], from: (p - 1) * pageSize + 1, to: p * pageSize },
+        { httpsAgent, timeout: 15000, headers: capturedHeaders }
+      );
+      return r.data;
+    }));
 
-      const results = await Promise.allSettled(pageNums.map(async p => {
-        const r = await axios.post(apiUrl,
-          { region_ids: [], from: (p - 1) * pageSize + 1, to: p * pageSize },
-          { httpsAgent, timeout: 15000, headers: { 'Content-Type': 'application/json' } }
-        );
-        return r.data;
-      }));
-
-      let gotData = false;
-      for (const r of results) {
-        if (r.status === 'fulfilled' && Array.isArray(r.value) && r.value.length > 0) {
-          allLots.push(...r.value);
-          gotData = true;
-        }
+    let gotData = false;
+    for (const r of results) {
+      if (r.status === 'fulfilled' && Array.isArray(r.value) && r.value.length > 0) {
+        allLots.push(...r.value);
+        gotData = true;
       }
-      if (!gotData) break;
     }
-  } catch(e) {
-    console.log('xarid: ma\'lumot olinmadi -', e.message);
-    return [];
+    if (!gotData) break;
   }
 
   console.log(`xarid: ${allLots.length} lot olindi`);
@@ -368,3 +377,4 @@ function getCacheStatus() {
 }
 
 module.exports = { getAllTenders, refreshCache, getCacheStatus };
+
