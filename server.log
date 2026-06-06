@@ -1,36 +1,29 @@
 TenderUZ server ishga tushdi: http://localhost:3000
 Cache to'ldirilmoqda (background)...
 Ma'lumot olinmoqda...
-etender: jami 668 tender, 67 sahifa
+xarid: 1-sahifa (1-urinish) - 500 | {"status":500,"message":"Приложение : Not Valid"}
+etender: jami 679 tender, 68 sahifa
+xarid: 1-sahifa (2-urinish) - 500 | {"status":500,"message":"Приложение : Not Valid"}
 xt-xarid [Тендер]: 8 faol
-etender: 668 tender olindi
-xt-xarid [Аукцион]: 139 faol
-xt-xarid [Маҳаллий аукцион]: 15 faol
-xt-xarid [Таклифлар сўрови]: 95 faol
-xt-xarid: 257 faol jami
-xarid: jami 516 lot, 26 sahifa
-xarid: 516 lot olindi
-Jami: 1441 (etender: 668, xarid: 516, xt: 257)
-Cache tayyor: 1441 ta tender
+xt-xarid [Аукцион]: 154 faol
+xt-xarid [Маҳаллий аукцион]: 13 faol
+etender: 679 tender olindi
+xt-xarid [Таклифлар сўрови]: 91 faol
+xt-xarid: 266 faol jami
+xarid: 1-sahifa (3-urinish) - 500 | {"status":500,"message":"Приложение : Not Valid"}
+Jami: 945 (etender: 679, xarid: 0, xt: 266)
+Cache tayyor: 945 ta tender
+Cron: yangilanish boshlandi...
 Cache yangilanmoqda...
-etender: jami 671 tender, 68 sahifa
+xarid: 1-sahifa (1-urinish) - 500 | {"status":500,"message":"Приложение : Not Valid"}
+etender: jami 682 tender, 69 sahifa
+xarid: 1-sahifa (2-urinish) - 500 | {"status":500,"message":"Приложение : Not Valid"}
 xt-xarid [Тендер]: 8 faol
-etender: 671 tender olindi
-xt-xarid [Аукцион]: 130 faol
-xt-xarid [Маҳаллий аукцион]: 14 faol
-xt-xarid [Таклифлар сўрови]: 94 faol
-xt-xarid: 246 faol jami
-xarid: jami 520 lot, 26 sahifa
-xarid: 520 lot olindi
-Jami: 1437 (etender: 671, xarid: 520, xt: 246)
-Cache yangilanmoqda...
-etender: jami 670 tender, 67 sahifa
-xt-xarid [Тендер]: 8 faol
-etender: 670 tender olindi
-xt-xarid [Аукцион]: 130 faol
-xt-xarid [Маҳаллий аукцион]: 14 faol
-xt-xarid [Таклифлар сўрови]: 94 faol
-xt-xarid: 246 faol jami
-xarid: jami 520 lot, 26 sahifa
-xarid: 520 lot olindi
-Jami: 1436 (etender: 670, xarid: 520, xt: 246)
+etender: 682 tender olindi
+xt-xarid [Аукцион]: 154 faol
+xt-xarid [Маҳаллий аукцион]: 13 faol
+xt-xarid [Таклифлар сўрови]: 91 faol
+xt-xarid: 266 faol jami
+xarid: 1-sahifa (3-urinish) - 500 | {"status":500,"message":"Приложение : Not Valid"}
+Jami: 948 (etender: 682, xarid: 0, xt: 266)
+Cron: 948 ta tender yangilandi

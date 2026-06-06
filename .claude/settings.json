@@ -13,7 +13,23 @@
       "Bash(node -e \"const d=require\\('/dev/stdin'\\); process.stdin.resume\\(\\); let s=''; process.stdin.on\\('data',c=>s+=c\\); process.stdin.on\\('end',\\(\\)=>{const d=JSON.parse\\(s\\); console.log\\('success:',d.success,'total:',d.total,'customers:',d.totalCustomers\\); d.data && d.data.forEach\\(x=>console.log\\(' ',x.name,x.count,'tender'\\)\\);}\\);\")",
       "Bash(curl -s \"http://localhost:3000/api/categories\")",
       "Bash(curl -s \"http://localhost:3000/api/stats\")",
-      "Bash(curl -s \"http://localhost:3000/api/tenders?limit=2\")"
+      "Bash(curl -s \"http://localhost:3000/api/tenders?limit=2\")",
+      "PowerShell(Get-Process -Name \"node\" -ErrorAction SilentlyContinue)",
+      "PowerShell(Stop-Process -Force)",
+      "PowerShell(Start-Process -FilePath \"node\" -ArgumentList \"src/index.js\" -WorkingDirectory \"C:\\\\Users\\\\���\\\\Desktop\\\\tenderuz\" -RedirectStandardOutput \"C:\\\\Users\\\\���\\\\Desktop\\\\tenderuz\\\\server.log\" -RedirectStandardError \"C:\\\\Users\\\\���\\\\Desktop\\\\tenderuz\\\\server_err.log\" -NoNewWindow)",
+      "WebFetch(domain:xarid.uzex.uz)",
+      "WebFetch(domain:xarid-api-auction.uzex.uz)",
+      "WebFetch(domain:tenderuz.onrender.com)",
+      "Bash(curl -s \"https://xarid.uzex.uz/\" --insecure -H \"User-Agent: Mozilla/5.0 \\(Windows NT 10.0; Win64; x64\\) AppleWebKit/537.36\")",
+      "Bash(curl -s \"https://xarid.uzex.uz/main-es2015.af6aab37f1ee41107adc.js\" --insecure -H \"User-Agent: Mozilla/5.0 \\(Windows NT 10.0; Win64; x64\\) AppleWebKit/537.36\" -H \"Referer: https://xarid.uzex.uz/\")",
+      "Bash(curl -s \"https://xarid.uzex.uz/main-es2015.af6aab37f1ee41107adc.js\" --insecure -H \"User-Agent: Mozilla/5.0 \\(Windows NT 10.0; Win64; x64\\) AppleWebKit/537.36\")",
+      "Bash(curl -s \"https://xarid.uzex.uz/main-es2015.af6aab37f1ee41107adc.js\" --insecure -H \"User-Agent: Mozilla/5.0\")",
+      "Read(//tmp/**)",
+      "Bash(grep -n \"fetchFromXarid\\\\|Validation\\\\|httpsAgent\\\\|async function fetch\" c:\\\\Users\\\\\\\\усер\\\\\\\\Desktop\\\\\\\\tenderuz\\\\\\\\src\\\\\\\\parser.js)",
+      "Bash(node -e ' *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)"
     ]
   }
 }

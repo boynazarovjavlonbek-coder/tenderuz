@@ -17,7 +17,7 @@ app.get('/', (req, res) => {
 
 process.on('uncaughtException', (err) => { console.error('UNCAUGHT:', err.message); });
 app.listen(PORT, () => {
-  console.log(`TenderUZ server ishga tushdi: http://localhost:${PORT}`);
+  console.log(`TenderMap server ishga tushdi: http://localhost:${PORT}`);
 
   // Server ishga tushganda darhol cache to'ldirish (background)
   console.log('Cache to\'ldirilmoqda (background)...');

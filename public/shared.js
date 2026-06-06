@@ -1,4 +1,4 @@
-/* TenderUZ shared UI helpers */
+/* TenderMap shared UI helpers */
 
 function toggleNav() {
   const nav = document.getElementById('mainNav');

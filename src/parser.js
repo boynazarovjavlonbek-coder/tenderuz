@@ -28,29 +28,76 @@ let isFetching = false;
 
 function detectCategory(title) {
   const t = (title || '').toLowerCase();
-  if (/kompyuter|компьютер|принтер|ноутбук|планшет|сервер|монитор|программ|ekran|printer|noutbuk|dasturiy|интернет|wifi|цифров|смартфон|телефон|axborot tizim|avtomatlashtiril|it xizmat|it infra|картридж|kartridj|smm|media.xat|автоматлашт|ахборот тизим|дастурий таъм|иш станция|арм\b/.test(t)) return 'IT';
-  if (/медицин|лекарственн|стерилизац|поликлиник|больниц|tibbiy|dori-darmon|шприц|бинт|стоматол|хирург|рентген|ультразвук|томограф|фармацевт|вакцин|протез|скорая помощ|гастроскоп|эндоскоп|sekvenator|секвенс/.test(t)) return 'Tibbiy';
-  if (/автомобил|автобус|грузов|тягач|прицеп|локомотив|вагон|самолет|мотоцикл|yuk mashin|avtobus|yuk tashish|юк ташиш|авиац/.test(t)) return 'Transport';
-  if (/питани|озиқ-овқат|oziq-ovqat|гўшт|тухум|сабзавот|рыбн|крупа|консерв|ovqatlantir|oshxona|столовая|приготовлени|taomlarni|maккажохори|маккажохори|кукуруза|резепт|resept/.test(t)) return 'Oziq-ovqat';
+
+  // IT
+  if (/kompyuter|компьютер|принтер|ноутбук|планшет|сервер|монитор|программ|ekran|printer|noutbuk|dasturiy|интернет|wifi|цифров|смартфон|телефон|axborot tizim|avtomatlashtiril|it xizmat|it infra|картридж|kartridj|smm|media.xat|автоматлашт|ахборот тизим|дастурий таъм|иш станция|арм\b|rfid|gps trek|светофор|svetofor|optik tola|optik kabel|оптик кабел|оптический кабел|swift.*tizim|tizim.*swift|biznes.analitik|bi report|telekommunikat|телекоммуникат|raqamli fortepiano/.test(t)) return 'IT';
+
+  // Tibbiy
+  if (/медицин|лекарственн|стерилизац|поликлиник|больниц|tibbiy|dori-darmon|шприц|бинт|стоматол|хирург|рентген|ультразвук|томограф|фармацевт|вакцин|протез|скорая помощ|гастроскоп|эндоскоп|sekvenator|sekvenserlar|секвенс|videogastroskop|rengen apparat|raqamli.*rengen/.test(t)) return 'Tibbiy';
+
+  // Transport
+  if (/автомобил|автобус|грузов|тягач|прицеп|локомотив|вагон|самолет|мотоцикл|yuk mashin|avtobus|yuk tashish|юк ташиш|авиац|самосвал|samosvol|konteyner tashish|контейнер.*ташиш|yarim vagon|temir yo.l.*tashish|temir yo.l.*xizmat|lizing.*avto|tashish xizmat/.test(t)) return 'Transport';
+
+  // Oziq-ovqat
+  if (/питани|озиқ-овқат|oziq-ovqat|гўшт|тухум|сабзавот|рыбн|крупа|консерв|ovqatlantir|oshxona|столовая|приготовлени|taomlarni|маккажохори|кукуруза|резепт|resept|овкат\b|ovqat\b|овқат\b|issiq ovqat|иссиқ овқат|иссик овкат|завтрак|пархез|parhez|ovqatlan|сог.лом тао|soğlom tao|uch mahal|уч маҳал|иссик ов|parchali|пар.хез/.test(t)) return 'Oziq-ovqat';
+
+  // Mebel
   if (/мебель|мебел|стул|стол |шкаф|кресло|диван|mebel|тумба|жалюзи/.test(t)) return 'Mebel';
-  if (/реклам|reklama|баннер|билборд|вывеск|полиграф|типограф|bosma materiallar|matbaa|матбаа|стенд\b|stend\b/.test(t)) return 'Reklama';
-  if (/строительн|монтаж|қурилиш|qurilish|бино|иморат|йўл|асфальт|вентиляц|сантехн|канализ|кровл|фундамент|бетон|реконструкц|капитальн|inshoot|qurish|tamirlash|suv tarmog|ichimlik suvi|дарё\b|daryo/.test(t)) return 'Qurilish';
-  if (/электр|кабел|провод|трансформатор|генератор|подстанц|счетчик|энергет|elektr|energetika/.test(t)) return 'Elektr va energetika';
-  if (/нефт|топлив|бензин|дизель|мазут|нефтепродукт|neft|yoqilgi|антрацит|odorant|одорант|кокс\b/.test(t)) return 'Neft va gaz';
-  if (/металлоконструкц|металл|сталь|алюминий|трубы|арматур|прокат|профиль|задвижк|отвод\b|зулфин|қайрилма|profil\b|temir profil|metal profil|вал.шестерн/.test(t)) return 'Metallurgiya';
-  if (/химия|растворит|кислот|щелочь|лакокрасоч|химикат|kimyo|баллон|ballonlar/.test(t)) return 'Kimyo';
-  if (/охрана|безопасност|сигнализац|видеонаблюд|пожар|xavfsizlik|qorovul|qo.riqlash|kuzatish postlari|kirish post/.test(t)) return 'Xavfsizlik';
-  if (/уборк|клининг|санитар|дезинфекц|tozalash|tozalik/.test(t)) return 'Tozalash xizmatlari';
-  if (/текстил|форменн|спецодежд|uniform|kiyim|mato|швейн|одежд|костюм|обувь|kurtka|куртка|шим\b|demi.mavsumli|qalin kurtka/.test(t)) return 'Kiyim va tekstil';
-  if (/тренинг|семинар|конференц|ta.lim|o.qit|университет|академия|ilmiy|tadqiqot/.test(t)) return "Ta'lim";
-  if (/сельск|агропром|ветеринар|ирригац|qishloq xo|dehqon|traktor|комбайн|суғориш|гербицид|issiqxona|иссиқхона|биологик фаоллик|зараркунанда/.test(t)) return "Qishloq xo'jaligi";
-  if (/запчаст|ehtiyot qism|запасн|деталь|агрегат|комплектующ|насос|nasos|grundfos|kompressor|компрессор/.test(t)) return 'Ehtiyot qismlar';
-  if (/аудит|бухгалтер|юридич|консалтинг|audit|молия|финанс|страхован|baholash|баҳолаш|оценк|sugurta|суғурта|пластик карт|plastik kart|hisobot/.test(t)) return 'Moliyaviy xizmatlar';
-  if (/китоб|книг|kitob|adabiyot|литератур|nashr/.test(t)) return 'Kitob va nashr';
-  if (/лаборатор|laborator|испытани|тестирован|пирометр|pirometr|sekvenator|секвенсер/.test(t)) return 'Laboratoriya';
+
+  // Reklama
+  if (/реклам|reklama|баннер|билборд|вывеск|полиграф|типограф|bosma materiallar|matbaa|матбаа|стенд\b|stend\b|marketing|маркетинг|videorolik|видеоролик|brend\b|бренд\b|targ.ib|тарғиб|kommunikatsiya.*plat|televizion.*loyiha/.test(t)) return 'Reklama';
+
+  // Neft va gaz (Qurilishdan oldin, chunki burg'ilash va quduq ham bor)
+  if (/нефт|топлив|бензин|дизель|мазут|нефтепродукт|neft|yoqilgi|антрацит|odorant|одорант|кокс\b|геофизик|geofizik|burg.ilash.*quduq|quduq.*burg.ilash|машъала|mashala|мaш.ал\b|mash.al\b|скважин|skvajin|нгкчб|шнгкчб|ngqchb|shngqchb|oltingugurt|олтингугурт|neft.*rezervu|gaz.*rezervuar|антикоррозион.*труб|yoqilgi.*rezerv/.test(t)) return 'Neft va gaz';
+
+  // Qurilish
+  if (/строительн|монтаж|қурилиш|qurilish|бино|иморат|йўл|асфальт|вентиляц|сантехн|канализ|кровл|фундамент|бетон|реконструкц|капитальн|inshoot|qurish|tamirlash|suv tarmog|ichimlik suvi|дарё\b|daryo|портлатиш|portlatish|взрыв.раб|дамба\b|damba\b|тўғон\b|to.g.on\b|шпор\b|obodonlashtirish|smeta hujjat|лойиха.смета|soy o.zan|o.zan.*uchastka|yer osti.*suvini|artezian|ёғоч бар|yog.och bar|yog.och.*quti/.test(t)) return 'Qurilish';
+
+  // Elektr va energetika
+  if (/электр|кабел|провод|трансформатор|генератор|подстанц|счетчик|энергет|elektr|energetika|quyosh panel|солнечн.*панел|аккумулятор.*батар|alkalin.*batar/.test(t)) return 'Elektr va energetika';
+
+  // Metallurgiya
+  if (/металлоконструкц|металл|сталь|алюминий|трубы|арматур|прокат|профиль|задвижк|отвод\b|зулфин|қайрилма|profil\b|temir profil|metal profil|вал.шестерн|о.тга чидамли|otga chidamli|огнеупор|футеровк|futerovka|kumush\b|кумуш\b|po.lat quyish|пўлат қуйиш/.test(t)) return 'Metallurgiya';
+
+  // Kimyo
+  if (/химия|растворит|кислот|щелочь|лакокрасоч|химикат|kimyo|баллон|ballonlar|нейтрализующ.*амин|нейтрализ.*амин|antikorroz|антикоррозион|pH.*ростлаш|pH.*регулир|реагент|reagent/.test(t)) return 'Kimyo';
+
+  // Xavfsizlik
+  if (/охрана|безопасност|сигнализац|видеонаблюд|пожар|xavfsizlik|qorovul|qo.riqlash|kuzatish postlari|kirish post|sanoat xavfsizligi|саноат хавфсизлиги|diagnostika.*xavfsizl/.test(t)) return 'Xavfsizlik';
+
+  // Tozalash xizmatlari
+  if (/уборк|клининг|санитар|дезинфекц|tozalash|tozalik|kir yuvish|кир йувиш|dazmol|дазмол/.test(t)) return 'Tozalash xizmatlari';
+
+  // Kiyim va tekstil
+  if (/текстил|форменн|спецодежд|uniform|kiyim|mato|швейн|одежд|костюм|обувь|kurtka|куртка|шим\b|demi.mavsumli|qalin kurtka|махсус кийим/.test(t)) return 'Kiyim va tekstil';
+
+  // Ta'lim
+  if (/тренинг|семинар|конференц|ta.lim|o.qit|университет|академия|ilmiy|tadqiqot|o.quv kurs|kasbiy.*kurs|kurslarni tashkil|mehnat muhofaza.*o.qi|qisqa muddatli.*kurs/.test(t)) return "Ta'lim";
+
+  // Qishloq xo'jaligi
+  if (/сельск|агропром|ветеринар|ирригац|qishloq xo|dehqon|traktor|комбайн|суғориш|гербицид|issiqxona|иссиқхона|биологик фаоллик|зараркунанда|uzumchilik|uzum.*voyish|uzumzor|ko.chatlar.*ekish|ko.chat.*yetkazib|yashil makon|plantatsiya.*uzum|ko.chat.*ekish/.test(t)) return "Qishloq xo'jaligi";
+
+  // Ehtiyot qismlar
+  if (/запчаст|ehtiyot qism|запасн|деталь|агрегат|комплектующ|насос|nasos|grundfos|kompressor|компрессор|klapan|клапан|станок|stanok|dastgoh|дастгох|prujina.*butlov|parmalash stanogi|tokarlik stanogi|balanslash dastgohi|ta.mirlash to.plami|ремонтный комплект|repair kit/.test(t)) return 'Ehtiyot qismlar';
+
+  // Moliyaviy xizmatlar
+  if (/аудит|бухгалтер|юридич|консалтинг|audit|молия|финанс|страхован|baholash|baxolash|баҳолаш|оценк|sugurta|суғурта|пластик карт|plastik kart|hisobot|bahosini aniqla|baxolash xizmati|master.reja|topografik xarita|топографик хари|yer uchastka.*baho|yer uchastkalarining.*tay/.test(t)) return 'Moliyaviy xizmatlar';
+
+  // Kitob va nashr
+  if (/китоб|книг|kitob|adabiyot|литератур|nashr|chop etish|чоп этиш|журнал.*чоп|журнал.*нашр/.test(t)) return 'Kitob va nashr';
+
+  // Laboratoriya
+  if (/лаборатор|laborator|испытани|тестирован|пирометр|pirometr|sekvenator|секвенсер|ftir|spektrometr|ускунал.*aniqlash|laboratoriya uskuna|leak tester|измерительн.*прибор/.test(t)) return 'Laboratoriya';
+
+  // Bojxona va logistika
   if (/bojxona|таможн|импорт|экспорт/.test(t)) return 'Bojxona va logistika';
-  if (/спортив|стадион|бассейн|sport zal|trenajer/.test(t)) return 'Sport';
+
+  // Sport
+  if (/спортив|стадион|бассейн|sport zal|trenajer|ot sporti|drone soccer/.test(t)) return 'Sport';
+
+  // Xizmatlar
   if (/хизмат|услуг|servis|xizmat ko.rsat|обслужив|аутсорсинг|аренда|ijara|pasport|ekspertiza|сопровожд|texnik xizmat|tadbirni|bayram tadbi|tashkil qilish/.test(t)) return 'Xizmatlar';
+
   return 'Boshqa';
 }
 
