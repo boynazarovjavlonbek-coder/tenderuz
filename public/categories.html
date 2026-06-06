@@ -16,7 +16,7 @@
     .sum-card.c3 { border-color: #e67e22; }
     .sum-card.c4 { border-color: #9b59b6; }
     .sum-lbl { font-size: 12px; color: #999; margin-bottom: 6px; }
-    .sum-num { font-size: 26px; font-weight: 800; color: #0d2d52; line-height: 1; }
+    .sum-num { font-size: 26px; font-weight: 800; color: #1a237e; line-height: 1; }
     .sum-unit { font-size: 12px; color: #aaa; margin-top: 3px; }
 
     .main-row { display: grid; grid-template-columns: 400px 1fr; gap: 20px; }
@@ -24,14 +24,14 @@
       position: relative; height: 280px;
       display: flex; align-items: center; justify-content: center;
     }
-    .dc-num  { font-size: 30px; font-weight: 900; color: #0d2d52; line-height: 1; }
+    .dc-num  { font-size: 30px; font-weight: 900; color: #1a237e; line-height: 1; }
     .dc-unit { font-size: 12px; color: #aaa; margin-top: 4px; font-weight: 500; }
     .cat-name-cell { display: flex; align-items: center; gap: 8px; }
-    .cat-label { font-weight: 600; color: #0d2d52; }
+    .cat-label { font-weight: 600; color: #1a237e; }
     .cat-sub   { font-size: 11px; color: #bbb; margin-top: 1px; }
     .bar-wrap  { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
     .cust-val  { color: #2471a3; font-weight: 600; }
-    .sum-val   { font-weight: 700; color: #0d2d52; min-width: 36px; text-align: right; }
+    .sum-val   { font-weight: 700; color: #1a237e; min-width: 36px; text-align: right; }
 
     @media (max-width: 1100px) {
       .main-row { grid-template-columns: 1fr; }
@@ -43,7 +43,12 @@
 <header class="header">
   <div class="header-left">
     <a class="logo" href="/">
-      <div class="logo-mark">T</div>
+      <div class="logo-mark">
+        <svg width="22" height="24" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M11 1C6.58 1 3 4.58 3 9c0 6.38 8 14 8 14s8-7.62 8-14c0-4.42-3.58-8-8-8z" fill="white"/>
+          <circle cx="11" cy="9" r="3" fill="#ff6b35"/>
+        </svg>
+      </div>
       <div class="logo-text">
         <div class="logo-name">TenderMap</div>
         <div class="logo-sub">O'zbekiston tenderlar agregatori</div>
@@ -74,7 +79,7 @@
 
   <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
     <span style="font-size:26px">📂</span>
-    <h1 style="font-size:22px;font-weight:800;color:#0d2d52">Kategoriyalar bo'yicha tahlil</h1>
+    <h1 style="font-size:22px;font-weight:800;color:#1a237e">Kategoriyalar bo'yicha tahlil</h1>
   </div>
 
   <!-- SUMMARY CARDS -->
