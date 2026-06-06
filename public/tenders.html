@@ -80,13 +80,6 @@
       </select>
       <select class="fselect" id="catFilter" onchange="applyFilters()">
         <option value="all">Barcha kategoriyalar</option>
-        <option value="IT">💻 IT</option>
-        <option value="Qurilish">🏗️ Qurilish</option>
-        <option value="Tibbiy">🏥 Tibbiy</option>
-        <option value="Transport">🚗 Transport</option>
-        <option value="Oziq-ovqat">🍎 Oziq-ovqat</option>
-        <option value="Mebel">🪑 Mebel</option>
-        <option value="Boshqa">📦 Boshqa</option>
       </select>
       <select class="fselect" id="regionFilter" onchange="applyFilters()">
         <option value="all">Barcha viloyatlar</option>
@@ -387,7 +380,8 @@ document.getElementById('searchInput').addEventListener('keypress', e => { if(e.
     }
   } catch(e) {}
 
-  // Check URL params
+  // Load dynamic category filter, then apply URL params
+  await loadCategoryFilter('catFilter');
   const q = new URLSearchParams(location.search);
   if (q.get('platform')) { document.getElementById('platFilter').value = q.get('platform'); }
   if (q.get('category')) { document.getElementById('catFilter').value  = q.get('category'); }

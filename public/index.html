@@ -126,13 +126,6 @@
         </select>
         <select class="fselect" id="catFilter">
           <option value="all">Barcha kategoriyalar</option>
-          <option value="IT">IT</option>
-          <option value="Qurilish">Qurilish</option>
-          <option value="Tibbiy">Tibbiy</option>
-          <option value="Transport">Transport</option>
-          <option value="Oziq-ovqat">Oziq-ovqat</option>
-          <option value="Mebel">Mebel</option>
-          <option value="Boshqa">Boshqa</option>
         </select>
         <select class="fselect" id="sortFilter">
           <option value="date_desc">Yangi avval</option>
@@ -406,6 +399,7 @@ document.getElementById('searchInput').addEventListener('keypress', e => {
 
 /* ── init ── */
 (async () => {
+  loadCategoryFilter('catFilter');
   loadStats(); fetchTenders();
   try {
     const s = await fetch('/api/status').then(r=>r.json());
