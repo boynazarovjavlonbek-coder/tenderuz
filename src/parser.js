@@ -1,5 +1,24 @@
 const axios = require('axios');
 const https = require('https');
+const crypto = require('crypto');
+
+const XARID_PUBLIC_KEY = `-----BEGIN PUBLIC KEY-----
+MIGeMA0GCSqGSIb3DQEBAQUAA4GMADCBiAKBgH8lx9sqVlIPIPvXSzzMOM1a0QjQ
+7oFbQKNntR4ckpa5pczfsLDDb0fzVz0FvImpgncTZLSJHAlaU4S/6EVmgPSgMm8n
+6pjKBGKQKlKQ6AHgVK3aaZ95fvsXezIETlIfP2YITMhbtlwV2uUvqlwGc2xrBrsd
+uscHPwmkfEiflDJ/AgMBAAE=
+-----END PUBLIC KEY-----`;
+
+function generateXaridValidation(url) {
+  const d = new Date();
+  const dd = String(d.getDate()).padStart(2, '0');
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const message = `${url}~${dd}.${mm}.${d.getFullYear()}`;
+  return crypto.publicEncrypt(
+    { key: XARID_PUBLIC_KEY, padding: crypto.constants.RSA_PKCS1_PADDING },
+    Buffer.from(message)
+  ).toString('base64');
+}
 
 const httpsAgent = new https.Agent({ rejectUnauthorized: false });
 
@@ -91,10 +110,95 @@ function normalizeCurrency(name) {
   return name;
 }
 
-// ── XARID — API Angular XSRF talab qiladi, axios bilan ishlamaydi
+// ── XARID ──
 async function fetchFromXarid() {
-  console.log('xarid: o\'tkazib yuborildi (API brauzer-auth talab qiladi)');
-  return [];
+  const apiUrl   = 'https://xarid-api-auction.uzex.uz/Common/GetMinimizedLotsList';
+  const pageSize = 20;
+
+  function makeHeaders() {
+    return {
+      'Accept':               'application/json',
+      'Accept-Language':      'ru,uz;q=0.9,en-US;q=0.8,en;q=0.7',
+      'Content-Type':         'application/json; charset=UTF-8',
+      'Language':             'uz',
+      'Origin':               'https://xarid.uzex.uz',
+      'Referer':              'https://xarid.uzex.uz/',
+      'User-Agent':           'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36',
+      'Validation':           generateXaridValidation(apiUrl),
+      'sec-ch-ua':            '"Chromium";v="136", "Google Chrome";v="136", "Not.A/Brand";v="99"',
+      'sec-ch-ua-mobile':     '?0',
+      'sec-ch-ua-platform':   '"Windows"',
+      'sec-fetch-dest':       'empty',
+      'sec-fetch-mode':       'cors',
+      'sec-fetch-site':       'same-site',
+    };
+  }
+
+  // 1. Birinchi sahifa (3 urinish)
+  let firstBatch = null;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const res = await axios.post(apiUrl,
+        { region_ids: [], from: 1, to: pageSize },
+        { httpsAgent, timeout: 25000, headers: makeHeaders() }
+      );
+      if (Array.isArray(res.data) && res.data.length > 0) { firstBatch = res.data; break; }
+    } catch(e) {
+      const status = e.response?.status || e.message;
+      const body   = e.response?.data ? JSON.stringify(e.response.data).slice(0, 300) : '';
+      console.log(`xarid: 1-sahifa (${attempt}-urinish) - ${status}${body ? ' | ' + body : ''}`);
+      if (attempt < 3) await new Promise(r => setTimeout(r, 3000));
+    }
+  }
+  if (!firstBatch) return [];
+
+  const allLots    = [...firstBatch];
+  const totalCount = firstBatch[0]?.total_count;
+  const totalPages = totalCount ? Math.ceil(totalCount / pageSize) : 100;
+  console.log(`xarid: jami ${totalCount} lot, ${totalPages} sahifa`);
+
+  // 2. Qolgan sahifalar parallel (5 lik partiyalarda)
+  for (let start = 2; start <= totalPages; start += 5) {
+    const nums    = Array.from({ length: Math.min(5, totalPages - start + 1) }, (_, i) => start + i);
+    const results = await Promise.allSettled(nums.map(p =>
+      axios.post(apiUrl,
+        { region_ids: [], from: (p - 1) * pageSize + 1, to: p * pageSize },
+        { httpsAgent, timeout: 15000, headers: makeHeaders() }
+      ).then(r => r.data)
+    ));
+    let got = false;
+    for (const r of results) {
+      if (r.status === 'fulfilled' && Array.isArray(r.value) && r.value.length > 0) {
+        allLots.push(...r.value); got = true;
+      }
+    }
+    if (!got) break;
+  }
+
+  console.log(`xarid: ${allLots.length} lot olindi`);
+  const now = new Date();
+  return allLots.map(lot => {
+    const deadline = new Date(lot.end_date);
+    const daysLeft = Math.ceil((deadline - now) / (1000 * 60 * 60 * 24));
+    const title    = lot.category_name || "Noma'lum";
+    return {
+      id:           `xarid_${lot.id}`,
+      title,
+      category:     detectCategory(title),
+      platform:     'xarid',
+      platformName: 'xarid.uzex.uz',
+      price:        lot.start_cost != null ? Math.round(lot.start_cost).toLocaleString('ru') : '0',
+      currency:     normalizeCurrency(lot.currency_name),
+      customer:     lot.customer_type || '',
+      location:     normalizeRegion(lot.region_name || ''),
+      district:     lot.district_name || '',
+      deadline:     lot.end_date,
+      daysLeft,
+      url:          `https://xarid.uzex.uz/auction/detail/${lot.id}`,
+      isNew:        daysLeft >= 5,
+      displayNo:    lot.display_no,
+    };
+  });
 }
 
 // ── ETENDER ──
