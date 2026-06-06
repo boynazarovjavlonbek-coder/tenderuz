@@ -9,29 +9,29 @@ let isFetching = false;
 
 function detectCategory(title) {
   const t = (title || '').toLowerCase();
-  if (/kompyuter|компьютер|принтер|ноутбук|планшет|сервер|монитор|программ|ekran|printer|noutbuk|dasturiy|интернет|wifi|цифров|смартфон|телефон|axborot tizim|avtomatlashtiril|it xizmat|it infra/.test(t)) return 'IT';
-  if (/медицин|лекарственн|стерилизац|поликлиник|больниц|tibbiy|dori-darmon|шприц|бинт|стоматол|хирург|рентген|ультразвук|томограф|фармацевт|вакцин|протез|скорая помощ/.test(t)) return 'Tibbiy';
-  if (/автомобил|автобус|грузов|тягач|прицеп|локомотив|вагон|самолет|мотоцикл|yuk mashin|avtobus/.test(t)) return 'Transport';
-  if (/питани|озиқ-овқат|oziq-ovqat|гўшт|тухум|сабзавот|рыбн|крупа|консерв|ovqatlantir|oshxona|столовая|приготовлени/.test(t)) return 'Oziq-ovqat';
+  if (/kompyuter|компьютер|принтер|ноутбук|планшет|сервер|монитор|программ|ekran|printer|noutbuk|dasturiy|интернет|wifi|цифров|смартфон|телефон|axborot tizim|avtomatlashtiril|it xizmat|it infra|картридж|kartridj|smm|media.xat|автоматлашт|ахборот тизим|дастурий таъм|иш станция|арм\b/.test(t)) return 'IT';
+  if (/медицин|лекарственн|стерилизац|поликлиник|больниц|tibbiy|dori-darmon|шприц|бинт|стоматол|хирург|рентген|ультразвук|томограф|фармацевт|вакцин|протез|скорая помощ|гастроскоп|эндоскоп|sekvenator|секвенс/.test(t)) return 'Tibbiy';
+  if (/автомобил|автобус|грузов|тягач|прицеп|локомотив|вагон|самолет|мотоцикл|yuk mashin|avtobus|yuk tashish|юк ташиш|авиац/.test(t)) return 'Transport';
+  if (/питани|озиқ-овқат|oziq-ovqat|гўшт|тухум|сабзавот|рыбн|крупа|консерв|ovqatlantir|oshxona|столовая|приготовлени|taomlarni|maккажохори|маккажохори|кукуруза|резепт|resept/.test(t)) return 'Oziq-ovqat';
   if (/мебель|мебел|стул|стол |шкаф|кресло|диван|mebel|тумба|жалюзи/.test(t)) return 'Mebel';
-  if (/реклам|reklama|баннер|билборд|вывеск|полиграф|типограф|bosma materiallar/.test(t)) return 'Reklama';
-  if (/строительн|монтаж|қурилиш|qurilish|бино|иморат|йўл|асфальт|вентиляц|сантехн|канализ|кровл|фундамент|бетон|реконструкц|капитальн|inshoot|qurish|tamirlash/.test(t)) return 'Qurilish';
+  if (/реклам|reklama|баннер|билборд|вывеск|полиграф|типограф|bosma materiallar|matbaa|матбаа|стенд\b|stend\b/.test(t)) return 'Reklama';
+  if (/строительн|монтаж|қурилиш|qurilish|бино|иморат|йўл|асфальт|вентиляц|сантехн|канализ|кровл|фундамент|бетон|реконструкц|капитальн|inshoot|qurish|tamirlash|suv tarmog|ichimlik suvi|дарё\b|daryo/.test(t)) return 'Qurilish';
   if (/электр|кабел|провод|трансформатор|генератор|подстанц|счетчик|энергет|elektr|energetika/.test(t)) return 'Elektr va energetika';
-  if (/нефт|топлив|бензин|дизель|мазут|уголь|нефтепродукт|neft|yoqilgi/.test(t)) return 'Neft va gaz';
-  if (/металлоконструкц|металл|сталь|алюминий|трубы|арматур|прокат/.test(t)) return 'Metallurgiya';
-  if (/химия|растворит|кислот|щелочь|лакокрасоч|химикат|kimyo/.test(t)) return 'Kimyo';
-  if (/охрана|безопасност|сигнализац|видеонаблюд|пожар|xavfsizlik|qorovul/.test(t)) return 'Xavfsizlik';
+  if (/нефт|топлив|бензин|дизель|мазут|нефтепродукт|neft|yoqilgi|антрацит|odorant|одорант|кокс\b/.test(t)) return 'Neft va gaz';
+  if (/металлоконструкц|металл|сталь|алюминий|трубы|арматур|прокат|профиль|задвижк|отвод\b|зулфин|қайрилма|profil\b|temir profil|metal profil|вал.шестерн/.test(t)) return 'Metallurgiya';
+  if (/химия|растворит|кислот|щелочь|лакокрасоч|химикат|kimyo|баллон|ballonlar/.test(t)) return 'Kimyo';
+  if (/охрана|безопасност|сигнализац|видеонаблюд|пожар|xavfsizlik|qorovul|qo.riqlash|kuzatish postlari|kirish post/.test(t)) return 'Xavfsizlik';
   if (/уборк|клининг|санитар|дезинфекц|tozalash|tozalik/.test(t)) return 'Tozalash xizmatlari';
-  if (/текстил|форменн|спецодежд|uniform|kiyim|mato|швейн|одежд|костюм|обувь/.test(t)) return 'Kiyim va tekstil';
+  if (/текстил|форменн|спецодежд|uniform|kiyim|mato|швейн|одежд|костюм|обувь|kurtka|куртка|шим\b|demi.mavsumli|qalin kurtka/.test(t)) return 'Kiyim va tekstil';
   if (/тренинг|семинар|конференц|ta.lim|o.qit|университет|академия|ilmiy|tadqiqot/.test(t)) return "Ta'lim";
-  if (/сельск|агропром|ветеринар|ирригац|qishloq xo|dehqon|traktor|комбайн|суғориш|гербицид/.test(t)) return "Qishloq xo'jaligi";
-  if (/запчаст|ehtiyot qism|запасн|деталь|агрегат|комплектующ/.test(t)) return 'Ehtiyot qismlar';
-  if (/аудит|бухгалтер|юридич|консалтинг|audit|молия|финанс|страхован/.test(t)) return 'Moliyaviy xizmatlar';
+  if (/сельск|агропром|ветеринар|ирригац|qishloq xo|dehqon|traktor|комбайн|суғориш|гербицид|issiqxona|иссиқхона|биологик фаоллик|зараркунанда/.test(t)) return "Qishloq xo'jaligi";
+  if (/запчаст|ehtiyot qism|запасн|деталь|агрегат|комплектующ|насос|nasos|grundfos|kompressor|компрессор/.test(t)) return 'Ehtiyot qismlar';
+  if (/аудит|бухгалтер|юридич|консалтинг|audit|молия|финанс|страхован|baholash|баҳолаш|оценк|sugurta|суғурта|пластик карт|plastik kart|hisobot/.test(t)) return 'Moliyaviy xizmatlar';
   if (/китоб|книг|kitob|adabiyot|литератур|nashr/.test(t)) return 'Kitob va nashr';
-  if (/лаборатор|laborator|испытани|тестирован/.test(t)) return 'Laboratoriya';
+  if (/лаборатор|laborator|испытани|тестирован|пирометр|pirometr|sekvenator|секвенсер/.test(t)) return 'Laboratoriya';
   if (/bojxona|таможн|импорт|экспорт/.test(t)) return 'Bojxona va logistika';
   if (/спортив|стадион|бассейн|sport zal|trenajer/.test(t)) return 'Sport';
-  if (/хизмат|услуг|servis|xizmat ko.rsat|обслужив|аутсорсинг|аренда|ijara|pasport|ekspertiza|сопровожд|texnik xizmat/.test(t)) return 'Xizmatlar';
+  if (/хизмат|услуг|servis|xizmat ko.rsat|обслужив|аутсорсинг|аренда|ijara|pasport|ekspertiza|сопровожд|texnik xizmat|tadbirni|bayram tadbi|tashkil qilish/.test(t)) return 'Xizmatlar';
   return 'Boshqa';
 }
 
@@ -91,118 +91,10 @@ function normalizeCurrency(name) {
   return name;
 }
 
-// ── XARID — Cookie + browser headers (Playwright-siz) ──
+// ── XARID — API Angular XSRF talab qiladi, axios bilan ishlamaydi
 async function fetchFromXarid() {
-  const apiUrl = 'https://xarid-api-auction.uzex.uz/Common/GetMinimizedLotsList';
-  const pageSize = 20;
-
-  const ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
-
-  // 1. Asosiy saytdan sessiya cookie va XSRF token olish
-  let apiHeaders = {
-    'User-Agent': ua,
-    'Accept': 'application/json, text/plain, */*',
-    'Accept-Language': 'uz-UZ,uz;q=0.9,ru;q=0.8',
-    'Content-Type': 'application/json',
-    'Referer': 'https://xarid.uzex.uz/auction/list',
-    'Origin': 'https://xarid.uzex.uz',
-  };
-
-  try {
-    const sessionRes = await axios.get('https://xarid.uzex.uz/auction/list', {
-      httpsAgent, timeout: 25000,
-      headers: { 'User-Agent': ua, 'Accept': 'text/html,*/*', 'Accept-Language': 'uz-UZ,uz;q=0.9' },
-    });
-    const rawCookies = sessionRes.headers['set-cookie'] || [];
-    const cookieParts = [];
-    let xsrfToken = '';
-    rawCookies.forEach(c => {
-      const pair = c.split(';')[0];
-      cookieParts.push(pair);
-      if (/xsrf-token/i.test(pair)) {
-        xsrfToken = decodeURIComponent(pair.split('=').slice(1).join('='));
-      }
-    });
-    if (cookieParts.length) apiHeaders['Cookie'] = cookieParts.join('; ');
-    if (xsrfToken)          apiHeaders['X-XSRF-TOKEN'] = xsrfToken;
-  } catch(e) {
-    console.log('xarid: sessiya xatolik -', e.message);
-  }
-
-  // 2. Birinchi sahifani olish (3 urinish)
-  let firstBatch = null;
-  for (let attempt = 1; attempt <= 3; attempt++) {
-    try {
-      const res = await axios.post(apiUrl,
-        { region_ids: [], from: 1, to: pageSize },
-        { httpsAgent, timeout: 25000, headers: apiHeaders }
-      );
-      if (Array.isArray(res.data) && res.data.length > 0) { firstBatch = res.data; break; }
-    } catch(e) {
-      console.log(`xarid: 1-sahifa (${attempt}-urinish) -`, e.message);
-      if (attempt < 3) await new Promise(r => setTimeout(r, 3000));
-    }
-  }
-  if (!firstBatch) return [];
-
-  const allLots = [...firstBatch];
-  const totalCount = firstBatch[0]?.total_count;
-
-  let totalPages;
-  if (totalCount) {
-    totalPages = Math.ceil(totalCount / pageSize);
-    console.log(`xarid: jami ${totalCount} lot, ${totalPages} sahifa`);
-  } else {
-    totalPages = 100; // noma'lum — bo'sh javob kelgunga qadar olish
-    console.log('xarid: total_count topilmadi, 100 sahifaga qadar uriniladi');
-  }
-
-  // 3. Qolgan sahifalarni parallel (5 lik partiyalarda)
-  for (let batchStart = 2; batchStart <= totalPages; batchStart += 5) {
-    const batchEnd = Math.min(batchStart + 4, totalPages);
-    const pageNums = Array.from({ length: batchEnd - batchStart + 1 }, (_, i) => batchStart + i);
-
-    const results = await Promise.allSettled(pageNums.map(p =>
-      axios.post(apiUrl,
-        { region_ids: [], from: (p - 1) * pageSize + 1, to: p * pageSize },
-        { httpsAgent, timeout: 15000, headers: apiHeaders }
-      ).then(r => r.data)
-    ));
-
-    let gotData = false;
-    for (const r of results) {
-      if (r.status === 'fulfilled' && Array.isArray(r.value) && r.value.length > 0) {
-        allLots.push(...r.value);
-        gotData = true;
-      }
-    }
-    if (!gotData) break;
-  }
-
-  console.log(`xarid: ${allLots.length} lot olindi`);
-  const now = new Date();
-  return allLots.map(lot => {
-    const deadline = new Date(lot.end_date);
-    const daysLeft = Math.ceil((deadline - now) / (1000 * 60 * 60 * 24));
-    const title = lot.category_name || "Noma'lum";
-    return {
-      id: `xarid_${lot.id}`,
-      title,
-      category: detectCategory(title),
-      platform: 'xarid',
-      platformName: 'xarid.uzex.uz',
-      price: lot.start_cost != null ? Math.round(lot.start_cost).toLocaleString('ru') : '0',
-      currency: normalizeCurrency(lot.currency_name),
-      customer: lot.customer_type || '',
-      location: normalizeRegion(lot.region_name || ''),
-      district: lot.district_name || '',
-      deadline: lot.end_date,
-      daysLeft,
-      url: `https://xarid.uzex.uz/auction/detail/${lot.id}`,
-      isNew: daysLeft >= 5,
-      displayNo: lot.display_no
-    };
-  });
+  console.log('xarid: o\'tkazib yuborildi (API brauzer-auth talab qiladi)');
+  return [];
 }
 
 // ── ETENDER ──
