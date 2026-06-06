@@ -3,6 +3,7 @@ const path = require('path');
 const cron = require('node-cron');
 const routes = require('./routes');
 const parser = require('./parser');
+const bot = require('./bot');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -21,7 +22,8 @@ app.listen(PORT, () => {
 
   // Server ishga tushganda darhol cache to'ldirish (background)
   console.log('Cache to\'ldirilmoqda (background)...');
-  parser.getAllTenders().then(t => {
+  bot.init();
+parser.getAllTenders().then(t => {
     console.log(`Cache tayyor: ${t.length} ta tender`);
   }).catch(e => {
     console.error('Cache xatolik:', e.message);
