@@ -42,7 +42,7 @@ function detectCategory(title) {
   if (/питани|озиқ-овқат|oziq-ovqat|озик-овкат|гўшт|тухум|сабзавот|рыбн|крупа|консерв|ovqatlantir|oshxona|столовая|приготовлени|taomlarni|маккажохори|кукуруза|резепт|resept|овкат|ovqat\b|овқат|issiq ovqat|иссиқ овқат|иссик овкат|завтрак|пархез|parhez|ovqatlan|соғлом овқ|uch mahal|уч ма.ал|иссиқ ов|parchali|продукты пищевые|напитки|напиток|хлеб|нон\s|нон,|нон$|чай\s|чай,|чай$|печенье|кондитер|бакалея|сладости|мука\s|сут\s|mineral.*suv|минеральная вода/.test(t)) return 'Oziq-ovqat';
 
   // Mebel
-  if (/мебель|мебел|стул|стол |шкаф|кресло|диван|mebel|тумба|жалюзи|jalyuzi|ковровое|линолеум|набор.*ванн|ванн.*набор|шторы|карниз|занавес|arxiv javon|metall.*javon|shkaf.*metall|метал.*шкаф|шкаф.*метал|полки|полка\s|стеллаж/.test(t)) return 'Mebel';
+  if (/мебель|мебел|стул|стол |шкаф|кресло|диван|mebel|тумба|жалюзи|jalyuzi|линолеум|набор.*ванн|ванн.*набор|шторы|карниз|занавес|arxiv javon|metall.*javon|shkaf.*metall|метал.*шкаф|шкаф.*метал|полки|полка\s|стеллаж/.test(t)) return 'Mebel';
 
   // Reklama
   if (/реклам|reklama|баннер|билборд|вывеск|полиграф|типограф|bosma materiallar|matbaa|матбаа|стенд\b|stend\b|marketing|маркетинг|videorolik|видеоролик|brend\b|бренд\b|targ.ib|тарғиб|kommunikatsiya.*plat|televizion.*loyiha/.test(t)) return 'Reklama';
