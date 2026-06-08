@@ -2,18 +2,17 @@
 
 async function loadCategoryFilter(selectId) {
   try {
-    const res = await fetch('/api/counts');
+    const res = await fetch('/api/categories');
     const data = await res.json();
-    const cats = data.categories || {};
-    const sorted = Object.entries(cats).sort((a, b) => b[1] - a[1]);
+    if (!data.success || !data.data) return;
     const sel = document.getElementById(selectId);
     if (!sel) return;
-    // Keep first option ("Barcha kategoriyalar"), remove the rest
     while (sel.options.length > 1) sel.remove(1);
-    for (const [name, count] of sorted) {
+    const sorted = data.data.slice().sort((a, b) => b.count - a.count);
+    for (const cat of sorted) {
       const opt = document.createElement('option');
-      opt.value = name;
-      opt.textContent = `${name} (${count})`;
+      opt.value = cat.name;
+      opt.textContent = `${cat.name} (${cat.count})`;
       sel.appendChild(opt);
     }
   } catch(e) { console.error('Category filter load error:', e); }

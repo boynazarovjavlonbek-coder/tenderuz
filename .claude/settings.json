@@ -37,7 +37,9 @@
       "Bash(Invoke-WebRequest -Uri \"http://localhost:3000/\" -UseBasicParsing)",
       "Bash(Select-Object -ExpandProperty StatusCode)",
       "PowerShell(Start-Sleep -Seconds 2; try { \\(Invoke-WebRequest -Uri \"http://localhost:3000/shared.css\" -UseBasicParsing\\).StatusCode } catch { \"Server not running\" })",
-      "PowerShell(\\(Invoke-WebRequest -Uri \"http://localhost:3000/shared.css\" -UseBasicParsing\\).Content.Substring\\(0, 300\\))"
+      "PowerShell(\\(Invoke-WebRequest -Uri \"http://localhost:3000/shared.css\" -UseBasicParsing\\).Content.Substring\\(0, 300\\))",
+      "PowerShell(try { $r = Invoke-WebRequest -Uri \"https://tenderuz.onrender.com/api/status\" -UseBasicParsing -TimeoutSec 15; $r.Content } catch { \"Error: $_\" })",
+      "PowerShell(try { $r = Invoke-WebRequest -Uri \"https://tenderuz.onrender.com/api/stats\" -UseBasicParsing -TimeoutSec 15; $r.Content.Substring\\(0, 200\\) } catch { \"Error: $_\" })"
     ]
   }
 }
