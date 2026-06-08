@@ -236,7 +236,30 @@ function daysChip(d, big) {
 }
 
 const PLAT_COLORS = { etender:'#27ae60', xarid:'#2980b9', xt:'#e67e22' };
-const CAT_COLORS  = ['#3498db','#e74c3c','#2ecc71','#f39c12','#9b59b6','#1abc9c','#95a5a6'];
+const CAT_COLOR_MAP = {
+  'Qurilish':              '#e74c3c',
+  'IT':                    '#3498db',
+  'Tibbiy':                '#2ecc71',
+  'Transport':             '#f39c12',
+  'Metallurgiya':          '#7f8c8d',
+  'Kimyo':                 '#1abc9c',
+  'Elektr va energetika':  '#f1c40f',
+  'Xizmatlar':             '#16a085',
+  'Neft va gaz':           '#e67e22',
+  'Moliyaviy xizmatlar':   '#8e44ad',
+  'Ehtiyot qismlar':       '#2471a3',
+  'Oziq-ovqat':            '#27ae60',
+  'Kiyim va tekstil':      '#d35400',
+  'Reklama':               '#e91e63',
+  'Xavfsizlik':            '#546e7a',
+  "Ta'lim":                '#5c6bc0',
+  "Qishloq xo'jaligi":     '#26a69a',
+  'Laboratoriya':          '#00acc1',
+  'Kitob va nashr':        '#ff7043',
+  'Mebel':                 '#ab47bc',
+  'Tozalash xizmatlari':   '#78909c',
+  'Boshqa':                '#b2bec3',
+};
 
 /* ── charts ── */
 function donut(id, labels, data, colors, centerEl) {
@@ -291,8 +314,21 @@ function applyStats(d) {
     );
   }
   if (d.categories) {
-    const catOrder = ['Qurilish','IT','Tibbiy','Transport','Oziq-ovqat','Mebel','Boshqa'];
-    donut('chartCategory', catOrder, catOrder.map(k=>d.categories[k]||0), CAT_COLORS, null);
+    const total = Object.values(d.categories).reduce((a, b) => a + b, 0);
+    const threshold = total * 0.03;
+    const main = [], small = [];
+    Object.entries(d.categories).sort((a, b) => b[1] - a[1]).forEach(([name, count]) => {
+      (count >= threshold ? main : small).push([name, count]);
+    });
+    const labels = main.map(([n]) => n);
+    const values = main.map(([, c]) => c);
+    const colors = main.map(([n]) => CAT_COLOR_MAP[n] || '#b2bec3');
+    if (small.length) {
+      labels.push(`Qolganlar (${small.length})`);
+      values.push(small.reduce((a, [, c]) => a + c, 0));
+      colors.push('#dfe6e9');
+    }
+    donut('chartCategory', labels, values, colors, null);
     document.getElementById('dcCatNum').textContent = Object.keys(d.categories).length;
   }
   if (d.deadline) {
