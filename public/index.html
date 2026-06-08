@@ -58,28 +58,67 @@
 
   <!-- STAT CARDS -->
   <div class="stat-row">
-    <div class="stat-card c-all" onclick="filterByPlatform('all')" style="cursor:pointer">
-      <div class="stat-icon" style="background:#e8f0fe">📊</div>
-      <div><div class="stat-num" id="sTotal">—</div><div class="stat-lbl">Jami tender</div><div class="stat-sub">3 ta platforma</div></div>
+    <div class="stat-card c-all" onclick="filterByPlatform('all')">
+      <div class="stat-icon">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>
+        </svg>
+      </div>
+      <div>
+        <div class="stat-num" id="sTotal">—</div>
+        <div class="stat-lbl">Jami tender</div>
+        <div class="stat-sub">3 ta platforma</div>
+      </div>
     </div>
-    <div class="stat-card c-et" onclick="filterByPlatform('etender')" style="cursor:pointer">
-      <div class="stat-icon" style="background:#d4f5e2">🟢</div>
-      <div><div class="stat-num" id="sEtender">—</div><div class="stat-lbl">etender.uzex.uz</div><div class="stat-sub">Davlat tenderlar</div></div>
+    <div class="stat-card c-et" onclick="filterByPlatform('etender')">
+      <div class="stat-icon">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+        </svg>
+      </div>
+      <div>
+        <div class="stat-num" id="sEtender">—</div>
+        <div class="stat-lbl">etender.uzex.uz</div>
+        <div class="stat-sub">Davlat tenderlar</div>
+      </div>
     </div>
-    <div class="stat-card c-xr" onclick="filterByPlatform('xarid')" style="cursor:pointer">
-      <div class="stat-icon" style="background:#d6eaf8">🔵</div>
-      <div><div class="stat-num" id="sXarid">—</div><div class="stat-lbl">xarid.uzex.uz</div><div class="stat-sub">Auksion lotlar</div></div>
+    <div class="stat-card c-xr" onclick="filterByPlatform('xarid')">
+      <div class="stat-icon">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <path d="M16 10a4 4 0 0 1-8 0"/>
+        </svg>
+      </div>
+      <div>
+        <div class="stat-num" id="sXarid">—</div>
+        <div class="stat-lbl">xarid.uzex.uz</div>
+        <div class="stat-sub">Auksion lotlar</div>
+      </div>
     </div>
-    <div class="stat-card c-xt" onclick="filterByPlatform('xt')" style="cursor:pointer">
-      <div class="stat-icon" style="background:#fde8d0">🟠</div>
-      <div><div class="stat-num" id="sXt">—</div><div class="stat-lbl">xt-xarid.uz</div><div class="stat-sub">Elektron xaridlar</div></div>
+    <div class="stat-card c-xt" onclick="filterByPlatform('xt')">
+      <div class="stat-icon">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+        </svg>
+      </div>
+      <div>
+        <div class="stat-num" id="sXt">—</div>
+        <div class="stat-lbl">xt-xarid.uz</div>
+        <div class="stat-sub">Elektron xaridlar</div>
+      </div>
     </div>
   </div>
 
   <!-- CHARTS ROW -->
   <div class="charts-row">
     <div class="card">
-      <div class="card-title"><span>🏢</span> Platforma bo'yicha</div>
+      <div class="card-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Platforma bo'yicha
+      </div>
       <div class="chart-wrap">
         <canvas id="chartPlatform"></canvas>
         <div class="donut-center">
@@ -89,7 +128,10 @@
       </div>
     </div>
     <div class="card">
-      <div class="card-title"><span>📂</span> Kategoriya bo'yicha</div>
+      <div class="card-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        Kategoriya bo'yicha
+      </div>
       <div class="chart-wrap">
         <canvas id="chartCategory"></canvas>
         <div class="donut-center">
@@ -99,7 +141,10 @@
       </div>
     </div>
     <div class="card">
-      <div class="card-title"><span>⏱️</span> Muddat bo'yicha taqsimot</div>
+      <div class="card-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Muddat bo'yicha taqsimot
+      </div>
       <div class="chart-wrap" style="height:210px">
         <canvas id="chartDeadline"></canvas>
       </div>
@@ -109,7 +154,10 @@
   <!-- BOTTOM ROW -->
   <div class="bottom-row">
     <div class="card">
-      <div class="card-title"><span>📍</span> Viloyat bo'yicha (Top 10)</div>
+      <div class="card-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        Viloyat bo'yicha (Top 10)
+      </div>
       <div style="height:260px;position:relative">
         <canvas id="chartRegion"></canvas>
       </div>
@@ -117,7 +165,10 @@
 
     <div class="card">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-        <div class="card-title" style="margin:0"><span>📋</span> Oxirgi tenderlar</div>
+        <div class="card-title" style="margin:0">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          Oxirgi tenderlar
+        </div>
         <a class="link-more" href="/tenders.html">Barchasini ko'rish →</a>
       </div>
 
