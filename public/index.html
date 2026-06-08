@@ -273,6 +273,80 @@ function makeBar(id, labels, data, colors, indexAxis='y', fmtFn) {
   });
 }
 
+/* ── render helpers ── */
+function applyStats(d) {
+  if (!d || !d.total) return;
+  document.getElementById('hTotal').textContent  = fmt(d.total);
+  document.getElementById('hUrgent').textContent = fmt(d.urgent);
+  document.getElementById('sTotal').textContent   = fmt(d.total);
+  document.getElementById('sEtender').textContent = fmt(d.platforms?.etender||0);
+  document.getElementById('sXarid').textContent   = fmt(d.platforms?.xarid||0);
+  document.getElementById('sXt').textContent      = fmt(d.platforms?.xt||0);
+  if (d.platforms) {
+    donut('chartPlatform',
+      ['etender.uzex.uz','xarid.uzex.uz','xt-xarid.uz'],
+      [d.platforms.etender||0, d.platforms.xarid||0, d.platforms.xt||0],
+      ['#27ae60','#2980b9','#e67e22'],
+      document.getElementById('dcPlatformNum')
+    );
+  }
+  if (d.categories) {
+    const catOrder = ['Qurilish','IT','Tibbiy','Transport','Oziq-ovqat','Mebel','Boshqa'];
+    donut('chartCategory', catOrder, catOrder.map(k=>d.categories[k]||0), CAT_COLORS, null);
+    document.getElementById('dcCatNum').textContent = Object.keys(d.categories).length;
+  }
+  if (d.deadline) {
+    makeBar('chartDeadline',
+      ['Bugun','1–3 kun','4–7 kun','8–30 kun','31–60 kun','60+ kun'],
+      [d.deadline.today, d.deadline.d3, d.deadline.d7, d.deadline.d30, d.deadline.d60, d.deadline.more],
+      ['#e74c3c','#e74c3c','#e67e22','#f1c40f','#27ae60','#27ae60']
+    );
+  }
+  if (d.topRegions) {
+    const entries = Object.entries(d.topRegions).sort((a,b)=>b[1]-a[1]);
+    const short = s => s.replace(/вилоят|viloyati|область|Республика|Respublikasi/gi,'').trim().slice(0,18);
+    makeBar('chartRegion', entries.map(([k])=>short(k)), entries.map(([,v])=>v));
+  }
+}
+
+function renderTenderRows(data) {
+  if (!data || !data.length) {
+    document.getElementById('tenderList').innerHTML = '<div class="loading-msg" style="color:#bbb">Hech narsa topilmadi</div>';
+    return;
+  }
+  data.forEach(t => tendersCache[t.id] = t);
+  document.getElementById('tenderList').innerHTML = data.map(t => `
+    <div class="t-row" onclick="openModal('${esc(t.id)}')">
+      <div class="t-row-left">
+        <div class="t-name">${esc(t.title)}</div>
+        <div class="t-meta">
+          <span class="plat-badge ${t.platform}">${esc(t.platformName)}</span>
+          <span class="cat-tag">${esc(t.category)}</span>
+          ${t.location ? `<span class="loc-tag">📍 ${esc(t.location)}</span>` : ''}
+          ${t.procedureType ? `<span class="cat-tag" style="color:#b06000">${esc(t.procedureType)}</span>` : ''}
+        </div>
+      </div>
+      <div class="t-row-right">
+        <div class="t-price">${esc(t.price)} <span style="font-size:11px;font-weight:400">${esc(t.currency)}</span></div>
+        ${daysChip(t.daysLeft)}
+      </div>
+    </div>`).join('');
+}
+
+/* ── localStorage cache — darhol ko'rsatish ── */
+function showCached() {
+  try {
+    const s = JSON.parse(localStorage.getItem('tm_stats') || 'null');
+    if (s) applyStats(s);
+    const t = JSON.parse(localStorage.getItem('tm_tenders') || 'null');
+    if (t && t.data && t.data.length) {
+      renderTenderRows(t.data);
+      renderPg(t.page, t.totalPages || 1);
+      document.getElementById('tenderInfo').textContent = `${fmt(t.total)} ta natija`;
+    }
+  } catch(e) {}
+}
+
 /* ── load stats ── */
 async function loadStats() {
   try {
@@ -293,33 +367,8 @@ async function loadStats() {
   try {
     const d = await fetch('/api/stats').then(r=>r.json());
     if (!d || !d.total) return;
-    document.getElementById('hTotal').textContent  = fmt(d.total);
-    document.getElementById('hUrgent').textContent = fmt(d.urgent);
-    document.getElementById('sTotal').textContent   = fmt(d.total);
-    document.getElementById('sEtender').textContent = fmt(d.platforms.etender||0);
-    document.getElementById('sXarid').textContent   = fmt(d.platforms.xarid||0);
-    document.getElementById('sXt').textContent      = fmt(d.platforms.xt||0);
-
-    donut('chartPlatform',
-      ['etender.uzex.uz','xarid.uzex.uz','xt-xarid.uz'],
-      [d.platforms.etender||0, d.platforms.xarid||0, d.platforms.xt||0],
-      ['#27ae60','#2980b9','#e67e22'],
-      document.getElementById('dcPlatformNum')
-    );
-    const catOrder = ['Qurilish','IT','Tibbiy','Transport','Oziq-ovqat','Mebel','Boshqa'];
-    donut('chartCategory', catOrder, catOrder.map(k=>d.categories[k]||0), CAT_COLORS, null);
-    document.getElementById('dcCatNum').textContent = Object.keys(d.categories).length;
-
-    makeBar('chartDeadline',
-      ['Bugun','1–3 kun','4–7 kun','8–30 kun','31–60 kun','60+ kun'],
-      [d.deadline.today, d.deadline.d3, d.deadline.d7, d.deadline.d30, d.deadline.d60, d.deadline.more],
-      ['#e74c3c','#e74c3c','#e67e22','#f1c40f','#27ae60','#27ae60']
-    );
-    if (d.topRegions) {
-      const entries = Object.entries(d.topRegions).sort((a,b)=>b[1]-a[1]);
-      const short = s => s.replace(/вилоят|viloyati|область|Республика|Respublikasi/gi,'').trim().slice(0,18);
-      makeBar('chartRegion', entries.map(([k])=>short(k)), entries.map(([,v])=>v));
-    }
+    applyStats(d);
+    try { localStorage.setItem('tm_stats', JSON.stringify(d)); } catch(e) {}
   } catch(e) { console.error(e); }
 }
 
@@ -334,33 +383,18 @@ async function fetchTenders() {
   const params   = new URLSearchParams({ platform, category, sort, page:tPage, limit:tLimit });
   if (search) params.set('search', search);
 
-  document.getElementById('tenderList').innerHTML = '<div class="loading-msg">Yuklanmoqda...</div>';
+  const isDefault = !search && platform==='all' && category==='all';
+  if (!isDefault) {
+    document.getElementById('tenderList').innerHTML = '<div class="loading-msg">Yuklanmoqda...</div>';
+  }
   try {
     const d = await fetch('/api/tenders?'+params).then(r=>r.json());
-    document.getElementById('tenderInfo').textContent = `${fmt(d.total)} ta natija — sahifa ${d.page}/${d.totalPages||1}`;
-
-    if (!d.data || d.data.length===0) {
-      document.getElementById('tenderList').innerHTML = '<div class="loading-msg" style="color:#bbb">Hech narsa topilmadi</div>';
-      document.getElementById('pgWrap').innerHTML=''; return;
-    }
-    d.data.forEach(t => tendersCache[t.id] = t);
-    document.getElementById('tenderList').innerHTML = d.data.map(t => `
-      <div class="t-row" onclick="openModal('${esc(t.id)}')">
-        <div class="t-row-left">
-          <div class="t-name">${esc(t.title)}</div>
-          <div class="t-meta">
-            <span class="plat-badge ${t.platform}">${esc(t.platformName)}</span>
-            <span class="cat-tag">${esc(t.category)}</span>
-            ${t.location ? `<span class="loc-tag">📍 ${esc(t.location)}</span>` : ''}
-            ${t.procedureType ? `<span class="cat-tag" style="color:#b06000">${esc(t.procedureType)}</span>` : ''}
-          </div>
-        </div>
-        <div class="t-row-right">
-          <div class="t-price">${esc(t.price)} <span style="font-size:11px;font-weight:400">${esc(t.currency)}</span></div>
-          ${daysChip(t.daysLeft)}
-        </div>
-      </div>`).join('');
+    document.getElementById('tenderInfo').textContent = `${fmt(d.total)} ta natija`;
+    renderTenderRows(d.data);
     renderPg(d.page, d.totalPages||1);
+    if (isDefault && d.data && d.data.length) {
+      try { localStorage.setItem('tm_tenders', JSON.stringify(d)); } catch(e) {}
+    }
   } catch(e) {
     document.getElementById('tenderList').innerHTML = '<div class="loading-msg" style="color:#e74c3c">Xatolik yuz berdi</div>';
   }
@@ -474,14 +508,13 @@ document.getElementById('searchInput').addEventListener('keypress', e => {
 
 /* ── init ── */
 (async () => {
+  showCached();            // 0ms — darhol oxirgi saqlangan ma'lumot
   loadCategoryFilter('catFilter');
   try {
     const s = await fetch('/api/status').then(r=>r.json());
     if (s.ready) {
-      // Data ready — load immediately
       loadStats(); fetchTenders();
     } else {
-      // Not ready — trigger fetch if idle, then wait
       if (!s.isFetching) {
         fetch('/api/refresh', { method:'POST' }).catch(()=>{});
         await new Promise(r => setTimeout(r, 400));
