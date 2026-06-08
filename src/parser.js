@@ -438,6 +438,7 @@ async function getAllTenders() {
 }
 
 async function refreshCache() {
+  if (isFetching) return cachedTenders;
   console.log('Cache yangilanmoqda...');
   return doFetch();
 }

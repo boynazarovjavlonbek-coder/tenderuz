@@ -394,8 +394,27 @@ function renderModal(t) {
 async function loadAll() {
   const btn = document.getElementById('btnRefresh');
   btn.disabled=true; btn.textContent='⏳ ...';
+  // Trigger backend refresh, then poll until done
+  await fetch('/api/refresh', { method:'POST' }).catch(()=>{});
+  await waitUntilReady();
   await Promise.all([loadStats(), fetchTenders()]);
   btn.disabled=false; btn.textContent='↻ Yangilash';
+}
+
+async function waitUntilReady(timeoutMs=120000) {
+  document.getElementById('fetchBanner').classList.add('show');
+  if (fetchPollTimer) clearInterval(fetchPollTimer);
+  return new Promise(resolve => {
+    const deadline = Date.now() + timeoutMs;
+    fetchPollTimer = setInterval(async () => {
+      const st = await fetch('/api/status').then(r=>r.json()).catch(()=>({}));
+      if (st.ready || Date.now() > deadline) {
+        clearInterval(fetchPollTimer);
+        document.getElementById('fetchBanner').classList.remove('show');
+        resolve();
+      }
+    }, 2500);
+  });
 }
 
 document.getElementById('searchInput').addEventListener('keypress', e => {
@@ -405,21 +424,23 @@ document.getElementById('searchInput').addEventListener('keypress', e => {
 /* ── init ── */
 (async () => {
   loadCategoryFilter('catFilter');
-  loadStats(); fetchTenders();
   try {
     const s = await fetch('/api/status').then(r=>r.json());
-    if (s.isFetching) {
-      document.getElementById('fetchBanner').classList.add('show');
-      fetchPollTimer = setInterval(async () => {
-        const st = await fetch('/api/status').then(r=>r.json()).catch(()=>({}));
-        if (!st.isFetching && st.ready) {
-          clearInterval(fetchPollTimer);
-          document.getElementById('fetchBanner').classList.remove('show');
-          loadStats(); fetchTenders();
-        }
-      }, 3000);
+    if (s.ready) {
+      // Data ready — load immediately
+      loadStats(); fetchTenders();
+    } else {
+      // Not ready — trigger fetch if idle, then wait
+      if (!s.isFetching) {
+        fetch('/api/refresh', { method:'POST' }).catch(()=>{});
+        await new Promise(r => setTimeout(r, 400));
+      }
+      await waitUntilReady();
+      loadStats(); fetchTenders();
     }
-  } catch(e) { setTimeout(()=>{ loadStats(); fetchTenders(); }, 2000); }
+  } catch(e) {
+    setTimeout(() => { loadStats(); fetchTenders(); }, 2000);
+  }
   setInterval(loadStats, 60000);
 })();
 </script>

@@ -363,25 +363,42 @@ function closeModal() {
 document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
 document.getElementById('searchInput').addEventListener('keypress', e => { if(e.key==='Enter') applyFilters(); });
 
+/* ── wait helper ── */
+async function waitUntilReady(timeoutMs=120000) {
+  document.getElementById('fetchBanner').classList.add('show');
+  return new Promise(resolve => {
+    const deadline = Date.now() + timeoutMs;
+    const t = setInterval(async () => {
+      const st = await fetch('/api/status').then(r=>r.json()).catch(()=>({}));
+      if (st.ready || Date.now() > deadline) {
+        clearInterval(t);
+        document.getElementById('fetchBanner').classList.remove('show');
+        if (st.lastFetch) {
+          const ago = Math.floor((Date.now() - new Date(st.lastFetch)) / 60000);
+          document.getElementById('lastUpdate').textContent =
+            ago < 1 ? 'Hozir yangilandi' : `${ago} daqiqa oldin yangilangan`;
+        }
+        resolve();
+      }
+    }, 2500);
+  });
+}
+
 /* ── init ── */
 (async () => {
   try {
     const s = await fetch('/api/status').then(r=>r.json());
-    document.getElementById('fetchBanner').classList.toggle('show', !!s.isFetching);
     if (s.lastFetch) {
       const ago = Math.floor((Date.now() - new Date(s.lastFetch)) / 60000);
       document.getElementById('lastUpdate').textContent =
         ago < 1 ? 'Hozir yangilandi' : `${ago} daqiqa oldin yangilangan`;
     }
-    if (s.isFetching) {
-      const t = setInterval(async () => {
-        const st = await fetch('/api/status').then(r=>r.json()).catch(()=>({}));
-        if (!st.isFetching && st.ready) {
-          clearInterval(t);
-          document.getElementById('fetchBanner').classList.remove('show');
-          fetchTenders();
-        }
-      }, 3000);
+    if (!s.ready) {
+      if (!s.isFetching) {
+        fetch('/api/refresh', { method:'POST' }).catch(()=>{});
+        await new Promise(r => setTimeout(r, 400));
+      }
+      await waitUntilReady();
     }
   } catch(e) {}
 
