@@ -509,7 +509,6 @@ document.getElementById('searchInput').addEventListener('keypress', e => {
 /* ── init ── */
 (async () => {
   showCached();            // 0ms — darhol oxirgi saqlangan ma'lumot
-  loadCategoryFilter('catFilter');
   try {
     const s = await fetch('/api/status').then(r=>r.json());
     if (s.ready) {
@@ -525,6 +524,7 @@ document.getElementById('searchInput').addEventListener('keypress', e => {
   } catch(e) {
     setTimeout(() => { loadStats(); fetchTenders(); }, 2000);
   }
+  loadCategoryFilter('catFilter'); // must be after an await — shared.js isn't loaded until the first await yields
   setInterval(loadStats, 60000);
 })();
 </script>
