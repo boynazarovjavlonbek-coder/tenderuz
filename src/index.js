@@ -30,6 +30,11 @@ parser.getAllTenders().then(t => {
   });
 });
 
+// O'z-o'zini uyg'otish - har 4 daqiqada
+setInterval(() => {
+  require('http').get(http://localhost:\/api/status).on('error', ()=>{});
+}, 4 * 60 * 1000);
+
 // Har 6 soatda yangilanish
 cron.schedule('0 */6 * * *', () => {
   console.log('Cron: yangilanish boshlandi...');
