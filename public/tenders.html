@@ -350,8 +350,13 @@ function openModal(id) {
     </div>
     <div class="modal-footer">
       <a class="btn-modal-link" href="${esc(t.url)}" target="_blank" rel="noopener">
-        Asl saytda ko'rish →
+        🔗 Manba saytda ko'rish
       </a>
+      <button class="btn-modal-save ${getSavedIds().includes(String(t.id))?'saved':''}"
+              onclick="toggleSave('${esc(t.id)}', this)">
+        ${getSavedIds().includes(String(t.id)) ? '❤️ Saqlangan' : '🤍 Saqlash'}
+      </button>
+      <button class="btn-modal-copy" onclick="copyLink('${esc(t.url)}')">📋</button>
     </div>`;
   document.getElementById('modalOverlay').classList.add('show');
   document.body.style.overflow = 'hidden';
@@ -359,6 +364,37 @@ function openModal(id) {
 function closeModal() {
   document.getElementById('modalOverlay').classList.remove('show');
   document.body.style.overflow = '';
+}
+function getSavedIds() {
+  try { return JSON.parse(localStorage.getItem('tm_saved') || '[]'); } catch { return []; }
+}
+function toggleSave(id, btn) {
+  let saved = getSavedIds();
+  if (saved.includes(String(id))) {
+    saved = saved.filter(s => s !== String(id));
+    btn.innerHTML = '🤍 Saqlash'; btn.classList.remove('saved');
+    showToast("Saqlangan tenderlardan o'chirildi");
+  } else {
+    saved.push(String(id));
+    btn.innerHTML = '❤️ Saqlangan'; btn.classList.add('saved');
+    showToast('Tender saqlandi ❤️');
+  }
+  localStorage.setItem('tm_saved', JSON.stringify(saved));
+}
+function copyLink(url) {
+  navigator.clipboard?.writeText(url).then(() => showToast('Havola nusxalandi 📋'));
+}
+function showToast(msg) {
+  let el = document.getElementById('tmToast');
+  if (!el) {
+    el = document.createElement('div'); el.id = 'tmToast';
+    el.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1a237e;color:#fff;padding:10px 22px;border-radius:20px;font-size:13px;font-weight:600;z-index:9999;transition:transform .3s;pointer-events:none;box-shadow:0 4px 20px rgba(26,35,126,.4);white-space:nowrap';
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.style.transform = 'translateX(-50%) translateY(0)';
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.style.transform = 'translateX(-50%) translateY(80px)'; }, 2500);
 }
 document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
 document.getElementById('searchInput').addEventListener('keypress', e => { if(e.key==='Enter') applyFilters(); });

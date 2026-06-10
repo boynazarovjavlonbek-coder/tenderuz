@@ -40,11 +40,16 @@
     <div class="hstat"><div class="hstat-num">3</div><div class="hstat-lbl">Platforma</div></div>
   </div>
   <div class="header-right">
-    <div style="text-align:right">
-      <div class="hstat-lbl" id="lastUpdate" style="color:rgba(255,255,255,.55)"></div>
-      <div class="hstat-lbl" id="nextRefreshInfo" style="color:#7ec8ff;opacity:.7"></div>
+    <div class="refresh-status" id="refreshStatus">
+      <span class="live-dot" id="liveDot"></span>
+      <div style="text-align:right;line-height:1.35">
+        <div class="hstat-lbl" id="lastUpdate" style="color:rgba(255,255,255,.8);font-weight:600"></div>
+        <div class="hstat-lbl" id="nextRefreshInfo" style="color:rgba(255,255,255,.45);font-size:10px"></div>
+      </div>
     </div>
-    <button class="btn-accent" id="btnRefresh" onclick="loadAll()">&#8635; Yangilash</button>
+    <button class="btn-accent" id="btnRefresh" onclick="loadAll()" title="Yangi tenderlarni yuklash">
+      <span id="refreshIcon">↻</span> Yangilash
+    </button>
   </div>
 </header>
 
@@ -182,6 +187,21 @@
         </select>
         <select class="fselect" id="catFilter">
           <option value="all">Barcha kategoriyalar</option>
+        </select>
+        <select class="fselect" id="deadlineFilter" onchange="loadTenders()">
+          <option value="">⏰ Muddat: barchasi</option>
+          <option value="0">🔴 Bugun tugaydi</option>
+          <option value="3">🟠 3 kun ichida</option>
+          <option value="7">🟡 7 kun ichida</option>
+          <option value="30">🟢 30 kun ichida</option>
+        </select>
+        <select class="fselect" id="priceFilter" onchange="loadTenders()">
+          <option value="">💰 Narx: barchasi</option>
+          <option value="10000000">10 mln so'm+</option>
+          <option value="50000000">50 mln so'm+</option>
+          <option value="100000000">100 mln so'm+</option>
+          <option value="500000000">500 mln so'm+</option>
+          <option value="1000000000">1 mlrd so'm+</option>
         </select>
         <select class="fselect" id="sortFilter">
           <option value="date_desc">Yangi avval</option>
@@ -395,8 +415,14 @@ async function loadStats() {
     }
     if (s.nextFetch) {
       const rem = Math.max(0, new Date(s.nextFetch) - Date.now());
-      const h = Math.floor(rem/3600000), m = Math.floor((rem%3600000)/60000);
-      document.getElementById('nextRefreshInfo').textContent = rem > 0 ? `Keyingi: ${h}s ${m}d` : '';
+      const totalMin = Math.floor(rem / 60000);
+      const h = Math.floor(totalMin / 60), m = totalMin % 60;
+      if (rem > 0) {
+        document.getElementById('nextRefreshInfo').textContent =
+          h > 0 ? `${h} soat ${m} daqiqadan keyin yangilanadi` : `${m} daqiqadan keyin yangilanadi`;
+      } else {
+        document.getElementById('nextRefreshInfo').textContent = '';
+      }
     }
   } catch(e) {}
 
@@ -415,9 +441,13 @@ async function fetchTenders() {
   const search = document.getElementById('searchInput').value.trim();
   const platform = document.getElementById('platFilter').value;
   const category = document.getElementById('catFilter').value;
-  const sort     = document.getElementById('sortFilter').value;
+  const sort        = document.getElementById('sortFilter').value;
+  const deadlineDays = document.getElementById('deadlineFilter')?.value || '';
+  const minPrice     = document.getElementById('priceFilter')?.value || '';
   const params   = new URLSearchParams({ platform, category, sort, page:tPage, limit:tLimit });
   if (search) params.set('search', search);
+  if (deadlineDays) params.set('deadlineDays', deadlineDays);
+  if (minPrice) params.set('minPrice', minPrice);
 
   const isDefault = !search && platform==='all' && category==='all';
   if (!isDefault) {
@@ -506,9 +536,46 @@ function renderModal(t) {
     </div>
     <div class="modal-footer">
       <a class="btn-modal-link" href="${esc(t.url)}" target="_blank" rel="noopener">
-        Asl saytda ko'rish →
+        🔗 Manba saytda ko'rish
       </a>
+      <button class="btn-modal-save ${getSavedIds().includes(String(t.id))?'saved':''}"
+              onclick="toggleSave('${esc(t.id)}', this)">
+        ${getSavedIds().includes(String(t.id)) ? '❤️ Saqlangan' : '🤍 Saqlash'}
+      </button>
+      <button class="btn-modal-copy" onclick="copyLink('${esc(t.url)}')">📋</button>
     </div>`;
+}
+
+function getSavedIds() {
+  try { return JSON.parse(localStorage.getItem('tm_saved') || '[]'); } catch { return []; }
+}
+function toggleSave(id, btn) {
+  let saved = getSavedIds();
+  if (saved.includes(String(id))) {
+    saved = saved.filter(s => s !== String(id));
+    btn.innerHTML = '🤍 Saqlash'; btn.classList.remove('saved');
+    showToast("Saqlangan tenderlardan o'chirildi");
+  } else {
+    saved.push(String(id));
+    btn.innerHTML = '❤️ Saqlangan'; btn.classList.add('saved');
+    showToast('Tender saqlandi ❤️');
+  }
+  localStorage.setItem('tm_saved', JSON.stringify(saved));
+}
+function copyLink(url) {
+  navigator.clipboard?.writeText(url).then(() => showToast('Havola nusxalandi 📋'));
+}
+function showToast(msg) {
+  let el = document.getElementById('tmToast');
+  if (!el) {
+    el = document.createElement('div'); el.id = 'tmToast';
+    el.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1a237e;color:#fff;padding:10px 22px;border-radius:20px;font-size:13px;font-weight:600;z-index:9999;transition:transform .3s;pointer-events:none;box-shadow:0 4px 20px rgba(26,35,126,.4);white-space:nowrap';
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.style.transform = 'translateX(-50%) translateY(0)';
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.style.transform = 'translateX(-50%) translateY(80px)'; }, 2500);
 }
 
 /* ── refresh ── */
