@@ -273,8 +273,6 @@ body {
   display: flex; align-items: center; justify-content: center;
 }
 .donut-center { position: absolute; text-align: center; pointer-events: none; }
-.legend-wrap { display:flex; flex-wrap:wrap; gap:6px 14px; justify-content:center; }
-.legend-item { white-space:nowrap; font-size:12px; }
 .donut-num { font-size: 22px; font-weight: 800; color: var(--p-dark); }
 .donut-lbl { font-size: 11px; color: var(--text-m); }
 
@@ -471,6 +469,8 @@ body {
   cursor:pointer; transition:background .15s;
 }
 .btn-modal-copy:hover { background:#ebebeb; }
+
+/* ── live dot (refresh status) ── */
 .refresh-status { display:flex; align-items:center; gap:8px; }
 .live-dot {
   width:9px; height:9px; border-radius:50%; background:#4caf50;
@@ -486,6 +486,7 @@ body {
   0%,100% { transform:scale(1); opacity:.5; }
   50%      { transform:scale(1.6); opacity:0; }
 }
+
 
 /* ══════════════════════════════
    TENDER CARDS (tenders page)
@@ -631,18 +632,6 @@ body {
 }
 .nav-overlay.show { display: block; }
 
-/* ── SITE FOOTER ── */
-.site-footer { background:#1a237e; color:rgba(255,255,255,.7); padding:20px 24px; margin-top:40px; }
-.site-footer-inner { max-width:1200px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; font-size:12px; }
-.footer-logo { color:#fff; font-weight:700; margin-right:8px; }
-.footer-desc { color:rgba(255,255,255,.5); }
-.footer-center { display:flex; gap:12px; align-items:center; }
-.footer-center a { color:#90caf9; text-decoration:none; }
-.footer-center a:hover { color:#fff; }
-.footer-right { display:flex; gap:12px; align-items:center; }
-.footer-right a { color:#90caf9; text-decoration:none; }
-.footer-right span { color:rgba(255,255,255,.5); }
-
 /* ══════════════════════════════
    RESPONSIVE
    ══════════════════════════════ */
@@ -679,3 +668,13 @@ body {
   .nav-overlay { top: 58px; }
   .hamburger { display: flex; }
 }
+
+.site-footer{background:#1a237e;color:rgba(255,255,255,.7);padding:18px 24px;margin-top:40px;}
+.site-footer-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:12px;}
+.footer-logo{color:#fff;font-weight:700;margin-right:6px;}
+.footer-desc{color:rgba(255,255,255,.55);}
+.footer-center{display:flex;gap:10px;align-items:center;}
+.footer-center a,.footer-right a{color:#90caf9;text-decoration:none;}
+.footer-center a:hover,.footer-right a:hover{color:#fff;text-decoration:underline;}
+.footer-right{display:flex;gap:12px;align-items:center;}
+.footer-right span{color:rgba(255,255,255,.5);}
