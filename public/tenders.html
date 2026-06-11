@@ -43,7 +43,6 @@
     <nav class="nav" id="mainNav">
       <a class="nav-link" href="/">Bosh sahifa</a>
       <a class="nav-link active" href="/tenders.html">Tenderlar</a>
-      <a class="nav-link" href="/auctions.html">Auksionlar</a>
       <a class="nav-link" href="/categories.html">Kategoriyalar</a>
       <a class="nav-link" href="/statistics.html">Statistika</a>
     </nav>
@@ -366,6 +365,9 @@ function closeModal() {
   document.getElementById('modalOverlay').classList.remove('show');
   document.body.style.overflow = '';
 }
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+
+/* ── save & copy helpers ── */
 function getSavedIds() {
   try { return JSON.parse(localStorage.getItem('tm_saved') || '[]'); } catch { return []; }
 }
@@ -397,7 +399,6 @@ function showToast(msg) {
   clearTimeout(el._t);
   el._t = setTimeout(() => { el.style.transform = 'translateX(-50%) translateY(80px)'; }, 2500);
 }
-document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
 document.getElementById('searchInput').addEventListener('keypress', e => { if(e.key==='Enter') applyFilters(); });
 
 /* ── wait helper ── */
@@ -413,7 +414,7 @@ async function waitUntilReady(timeoutMs=120000) {
         if (st.lastFetch) {
           const ago = Math.floor((Date.now() - new Date(st.lastFetch)) / 60000);
           document.getElementById('lastUpdate').textContent =
-            ago < 1 ? 'Hozir yangilandi' : `${ago} daqiqa oldin yangilangan`;
+            ago < 1 ? '● Hozir yangilandi' : ago < 60 ? `● ${ago} daqiqa oldin yangilangan` : '● ' + new Date(s.lastFetch).toLocaleTimeString('uz',{hour:'2-digit',minute:'2-digit'}) + ' da yangilandi';
         }
         resolve();
       }
@@ -428,7 +429,7 @@ async function waitUntilReady(timeoutMs=120000) {
     if (s.lastFetch) {
       const ago = Math.floor((Date.now() - new Date(s.lastFetch)) / 60000);
       document.getElementById('lastUpdate').textContent =
-        ago < 1 ? 'Hozir yangilandi' : `${ago} daqiqa oldin yangilangan`;
+        ago < 1 ? '● Hozir yangilandi' : ago < 60 ? `● ${ago} daqiqa oldin yangilangan` : '● ' + new Date(s.lastFetch).toLocaleTimeString('uz',{hour:'2-digit',minute:'2-digit'}) + ' da yangilandi';
     }
     if (!s.ready) {
       if (!s.isFetching) {
