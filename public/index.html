@@ -142,7 +142,6 @@
         <canvas id="chartCategory"></canvas>
         <div class="donut-center">
           <div class="donut-num" id="dcCatNum">—</div>
-          <div class="donut-lbl">kategoriya</div>
         </div>
       </div>
     </div>
@@ -292,7 +291,7 @@ function donut(id, labels, data, colors, centerEl) {
     options:{
       responsive:true, maintainAspectRatio:false, cutout:'68%',
       plugins:{
-        legend:{ position:'bottom', labels:{ boxWidth:10, padding:12, font:{size:11} } },
+        legend:{ position:'bottom', labels:{ boxWidth:12, padding:8, font:{size:11} } },
         tooltip:{ callbacks:{ label:c => ` ${c.label}: ${fmt(c.raw)}` } }
       }
     }
