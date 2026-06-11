@@ -35,8 +35,8 @@ setInterval(() => {
   require('http').get(`http://localhost:${PORT}/api/status`).on('error', ()=>{});
 }, 4 * 60 * 1000);
 
-// Har 6 soatda yangilanish
-cron.schedule('0 */6 * * *', () => {
+// Har 1 soatda yangilanish
+cron.schedule('0 * * * *', () => {
   console.log('Cron: yangilanish boshlandi...');
   parser.refreshCache().then(t => {
     console.log(`Cron: ${t.length} ta tender yangilandi`);
