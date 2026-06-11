@@ -425,7 +425,7 @@ async function doFetch() {
 }
 
 async function getAllTenders() {
-  if (cachedTenders.length > 0 && lastFetch && (Date.now() - lastFetch) < 21600000) {
+  if (cachedTenders.length > 0 && lastFetch && (Date.now() - lastFetch) < 3600000) {
     return cachedTenders;
   }
   if (isFetching) {
@@ -449,7 +449,7 @@ function getCacheStatus() {
     count: cachedTenders.length,
     isFetching,
     lastFetch: lastFetch ? new Date(lastFetch).toISOString() : null,
-    nextFetch: lastFetch ? new Date(lastFetch + 21600000).toISOString() : null
+    nextFetch: lastFetch ? new Date(lastFetch + 3600000).toISOString() : null
   };
 }
 
