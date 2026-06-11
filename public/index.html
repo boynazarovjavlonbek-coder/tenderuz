@@ -27,6 +27,7 @@
     <nav class="nav" id="mainNav">
       <a class="nav-link active" href="/">Bosh sahifa</a>
       <a class="nav-link" href="/tenders.html">Tenderlar</a>
+      <a class="nav-link" href="/auctions.html">Auksionlar</a>
       <a class="nav-link" href="/categories.html">Kategoriyalar</a>
       <a class="nav-link" href="/statistics.html">Statistika</a>
     </nav>
@@ -291,7 +292,7 @@ function donut(id, labels, data, colors, centerEl) {
     options:{
       responsive:true, maintainAspectRatio:false, cutout:'68%',
       plugins:{
-        legend:{ position:'bottom', labels:{ boxWidth:10, padding:12, font:{size:11} } },
+        legend:{ position:'bottom', labels:{ boxWidth:12, padding:10, font:{size:11} } },
         tooltip:{ callbacks:{ label:c => ` ${c.label}: ${fmt(c.raw)}` } }
       }
     }

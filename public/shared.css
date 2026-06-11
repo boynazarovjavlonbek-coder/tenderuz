@@ -273,6 +273,8 @@ body {
   display: flex; align-items: center; justify-content: center;
 }
 .donut-center { position: absolute; text-align: center; pointer-events: none; }
+.legend-wrap { display:flex; flex-wrap:wrap; gap:6px 14px; justify-content:center; }
+.legend-item { white-space:nowrap; font-size:12px; }
 .donut-num { font-size: 22px; font-weight: 800; color: var(--p-dark); }
 .donut-lbl { font-size: 11px; color: var(--text-m); }
 
