@@ -563,3 +563,80 @@ function init() {
 }
 
 module.exports = { init, checkNewTenders };
+
+// ─── Har qanday matnni ushlash (buyruq bo'lmagan) ─────────────────────────────
+bot.on('message', async (msg) => {
+  if (!msg.text || msg.text.startsWith('/')) return;
+  const chatId = msg.chat.id;
+  const text   = msg.text.trim();
+
+  // Kategoriya nomini tekshirish
+  const cat = CATEGORIES.find(c =>
+    c.name.toLowerCase() === text.toLowerCase() ||
+    c.key === text.toLowerCase()
+  );
+  if (cat) {
+    const loadMsg = await bot.sendMessage(chatId, `⏳ ${cat.emoji} ${cat.name} tenderlar yuklanmoqda...`, { parse_mode: 'HTML' });
+    try {
+      const all   = await parser.getAllTenders();
+      const found = all.filter(t => t.category === cat.name);
+      await bot.deleteMessage(chatId, loadMsg.message_id).catch(() => {});
+      if (!found.length) {
+        return send(chatId, `❌ <b>${cat.emoji} ${cat.name}</b> kategoriyasida faol tender topilmadi.`, { reply_markup: backKeyboard() });
+      }
+      await send(chatId, `${cat.emoji} <b>${cat.name}</b> — ${Math.min(5, found.length)} ta tender:`);
+      for (const [i, t] of found.slice(0, 5).entries()) {
+        await send(chatId, formatTender(t, i + 1));
+      }
+      if (found.length > 5) {
+        await send(chatId, `📋 Yana <b>${found.length - 5}</b> ta bor → <a href="https://tendermap.uz">tendermap.uz</a>`, { reply_markup: backKeyboard() });
+      }
+    } catch {
+      await bot.deleteMessage(chatId, loadMsg.message_id).catch(() => {});
+      await send(chatId, '❌ Xatolik yuz berdi.');
+    }
+    return;
+  }
+
+  // Qisqa matnni qidiruv sifatida qabul qilish
+  if (text.length >= 2) {
+    const loadMsg = await bot.sendMessage(chatId, `🔍 "<b>${escHtml(text)}</b>" qidirilmoqda...`, { parse_mode: 'HTML' });
+    try {
+      const all   = await parser.getAllTenders();
+      const q     = text.toLowerCase();
+      const found = all.filter(t =>
+        (t.title || '').toLowerCase().includes(q) ||
+        (t.description || '').toLowerCase().includes(q) ||
+        (t.location || '').toLowerCase().includes(q) ||
+        (t.category || '').toLowerCase().includes(q)
+      );
+      await bot.deleteMessage(chatId, loadMsg.message_id).catch(() => {});
+      if (!found.length) {
+        return send(chatId,
+          `❌ "<b>${escHtml(text)}</b>" bo\'yicha tender topilmadi.`,
+          { reply_markup: backKeyboard() }
+        );
+      }
+      await send(chatId, `✅ <b>${found.length} ta tender topildi</b> — dastlabki ${Math.min(5, found.length)} tasi:`);
+      for (const [i, t] of found.slice(0, 5).entries()) {
+        await send(chatId, formatTender(t, i + 1));
+      }
+      if (found.length > 5) {
+        await send(chatId,
+          `📋 Qolgan <b>${found.length - 5}</b> ta → <a href="https://tendermap.uz">tendermap.uz</a>`,
+          { reply_markup: backKeyboard() }
+        );
+      }
+    } catch {
+      await bot.deleteMessage(chatId, loadMsg.message_id).catch(() => {});
+      await send(chatId, '❌ Xatolik yuz berdi.');
+    }
+    return;
+  }
+
+  // Tushunarsiz matn
+  await send(chatId,
+    `🤔 Tushunmadim. Quyidagi tugmalardan foydalaning:`,
+    { reply_markup: mainMenuKeyboard() }
+  );
+});
