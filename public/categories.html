@@ -207,7 +207,7 @@ function renderTable(data) {
     const sPct   = maxSum>0 ? Math.round((d.totalSumMlrd/maxSum)*100) : 0;
     const share  = Math.round((d.count/totalT)*100);
     const rCls   = i<3 ? RANK[i] : '';
-    return `<tr style="cursor:pointer" onclick="location.href='/tenders.html?category='+encodeURIComponent('${d.name}')">
+    return `<tr style="cursor:pointer" data-cat="${d.name.replace(/&/g,'&amp;').replace(/"/g,'&quot;')}" onclick="location.href='/tenders.html?category='+encodeURIComponent(this.dataset.cat)">
       <td><span class="rank-badge ${rCls}">${i+1}</span></td>
       <td>
         <div class="cat-name-cell">
