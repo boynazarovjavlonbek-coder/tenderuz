@@ -444,7 +444,16 @@ async function waitUntilReady(timeoutMs=120000) {
   } catch(e) {}
 
   // Load dynamic category filter, then apply URL params
-  await loadCategoryFilter('catFilter');
+  await 
+  // URL dan kategoriya parametrini olish
+  const _urlP = new URLSearchParams(window.location.search);
+  const _urlCat = _urlP.get('category');
+  if (_urlCat) {
+    const catEl = document.getElementById('catFilter');
+    if (catEl) { catEl.value = _urlCat; }
+  }
+
+  loadCategoryFilter('catFilter');
   const q = new URLSearchParams(location.search);
   if (q.get('platform')) { document.getElementById('platFilter').value = q.get('platform'); }
   if (q.get('category')) { document.getElementById('catFilter').value  = q.get('category'); }
