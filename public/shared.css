@@ -594,8 +594,8 @@ body {
   padding: 0 14px 12px; border-bottom: 2px solid var(--bg);
 }
 .cat-table thead th:not(:first-child) { text-align: right; }
-.cat-table tbody tr { transition: background .12s; }
-.cat-table tbody tr:hover { background: var(--p-tint); }
+.cat-table tbody tr { cursor: pointer; transition: background 0.15s; }
+.cat-table tbody tr:hover { background: rgba(26,35,126,0.06); }
 .cat-table tbody td { padding: 13px 14px; border-bottom: 1px solid #f2f4fb; }
 .cat-table tbody tr:last-child td { border-bottom: none; }
 .cat-table tbody td:not(:first-child) { text-align: right; }
